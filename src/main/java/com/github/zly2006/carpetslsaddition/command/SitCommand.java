@@ -3,31 +3,31 @@ package com.github.zly2006.carpetslsaddition.command;
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
 import com.github.zly2006.carpetslsaddition.util.SitEntity;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.decoration.ArmorStand;
 
 public class SitCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal("sit")
-                .requires(ServerCommandSource::isExecutedByPlayer)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("sit")
+                .requires(CommandSourceStack::isPlayer)
                 .requires((commandSource) -> SLSCarpetSettings.canUseSitCommand)
                 .executes(context -> {
-                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    ServerPlayer player = context.getSource().getPlayer();
                     assert player != null;
 
-                    if (player.getVehicle() != null || !player.isOnGround()) {  // 防止错误的坐下行为
+                    if (player.getVehicle() != null || !player.onGround()) {  // 防止错误的坐下行为
                         return 1;
                     }
 
-                    World world = player.getWorld();
+                    ServerLevel world = (ServerLevel) player.level();
 
-                    ArmorStandEntity armorStandEntity = new ArmorStandEntity(world, player.getX(), player.getY(), player.getZ());
+                    ArmorStand armorStandEntity = new ArmorStand(world, player.getX(), player.getY(), player.getZ());
                     ((SitEntity) armorStandEntity).setSitEntity(true);
-                    world.spawnEntity(armorStandEntity);
-                    player.setSneaking(false);
+                    world.addFreshEntity(armorStandEntity);
+                    player.setShiftKeyDown(false);
                     player.startRiding(armorStandEntity);
 
                     return 1;
