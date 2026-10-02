@@ -1,11 +1,10 @@
 package com.github.zly2006.carpetslsaddition.util;
 
-import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-
-import java.util.Objects;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 
 public class ShulkerBoxItemUtil {
     public static final int SHULKERBOX_MAX_STACK_AMOUNT = 64;
@@ -15,25 +14,17 @@ public class ShulkerBoxItemUtil {
             if (stack.isEmpty() && otherStack.isEmpty()) {
                 return true;
             }
-            return Objects.equals(
-                    stack.getComponents().filtered(s -> s != DataComponentTypes.CONTAINER),
-                    stack.getComponents().filtered(s -> s != DataComponentTypes.CONTAINER)
-            );
+            return stack.getComponents().equals(otherStack.getComponents());
         }
-        return ItemStack.areItemsAndComponentsEqual(stack, otherStack);
+        return ItemStack.isSameItemSameComponents(stack, otherStack);
     }
 
     public static boolean isEmptyShulkerBoxItem(ItemStack itemStack) {
-        if (itemStack.getItem() instanceof BlockItem &&
-                ((BlockItem) itemStack.getItem()).getBlock() instanceof ShulkerBoxBlock) {
-            if (itemStack.getComponents().contains(DataComponentTypes.CONTAINER)) {
-                return !itemStack.getComponents().get(DataComponentTypes.CONTAINER).iterateNonEmpty().iterator().hasNext();
-            } else {
-                return true;
-            }
-        } else {
-            return false;
+        if (itemStack.getItem() instanceof BlockItem blockItem
+                && blockItem.getBlock() instanceof ShulkerBoxBlock) {
+            return itemStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
+                    .allItemsCopyStream().findAny().isEmpty();
         }
+        return false;
     }
-
 }

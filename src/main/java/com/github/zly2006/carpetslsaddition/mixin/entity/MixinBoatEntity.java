@@ -1,14 +1,14 @@
 package com.github.zly2006.carpetslsaddition.mixin.entity;
 
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
-import net.minecraft.entity.Leashable;
-import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.vehicle.boat.Boat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(BoatEntity.class)
+@Mixin(Boat.class)
 public abstract class MixinBoatEntity implements Leashable {
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTick(CallbackInfo ci) {
@@ -19,6 +19,6 @@ public abstract class MixinBoatEntity implements Leashable {
             return;
         }
 
-        this.detachLeash();
+        this.dropLeash();
     }
 }

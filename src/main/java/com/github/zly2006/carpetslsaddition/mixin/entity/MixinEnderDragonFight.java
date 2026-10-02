@@ -3,20 +3,19 @@ package com.github.zly2006.carpetslsaddition.mixin.entity;
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
 import com.github.zly2006.carpetslsaddition.mixin.block.BlockPatternTestTransformInvoker;
 import com.google.common.cache.LoadingCache;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.EndGatewayBlockEntity;
-import net.minecraft.block.entity.EndPortalBlockEntity;
-import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.block.pattern.CachedBlockPosition;
-import net.minecraft.entity.boss.dragon.EnderDragonFight;
-import net.minecraft.entity.decoration.EndCrystalEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.gen.feature.EndPortalFeature;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import net.minecraft.world.level.block.entity.TheEndPortalBlockEntity;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.block.state.pattern.BlockPattern;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,20 +24,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-@Mixin(EnderDragonFight.class)
+@Mixin(net.minecraft.world.level.dimension.end.EnderDragonFight.class)
 public class MixinEnderDragonFight {
     @Shadow
     @Final
-    private ServerWorld world;
+    private ServerLevel level;
 
     @Shadow
     @Final
-    private BlockPattern endPortalPattern;
+    private BlockPattern exitPortalPattern;
 
     @Shadow
     private BlockPos exitPortalLocation;
-    @Shadow
-    private boolean doLegacyCheck;
 
     @Unique
     private int defaultChunkX = -8;
@@ -52,21 +49,21 @@ public class MixinEnderDragonFight {
      * @reason Optimize the search process of the end portal
      */
     @Overwrite
-    private @Nullable BlockPattern.Result findEndPortal() {
-        int i,j;
-        if(!SLSCarpetSettings.optimizedOnDragonRespawn) {
+    private @Nullable BlockPattern.BlockPatternMatch findExitPortal() {
+        int i, j;
+        if (!SLSCarpetSettings.optimizedOnDragonRespawn) {
             defaultChunkX = -8;
             defaultChunkZ = -8;
         }
-        for(i = defaultChunkX; i <= 8; ++i) {
-            for(j = defaultChunkZ; j <= 8; ++j) {
-                WorldChunk worldChunk = this.world.getChunk(i, j);
-                for(BlockEntity blockEntity : worldChunk.getBlockEntities().values()) {
-                    if(SLSCarpetSettings.optimizedOnDragonRespawn && blockEntity instanceof EndGatewayBlockEntity) continue;
-                    if (blockEntity instanceof EndPortalBlockEntity) {
-                        BlockPattern.Result result = this.endPortalPattern.searchAround(this.world, blockEntity.getPos());
+        for (i = defaultChunkX; i <= 8; ++i) {
+            for (j = defaultChunkZ; j <= 8; ++j) {
+                LevelChunk worldChunk = this.level.getChunk(i, j);
+                for (BlockEntity blockEntity : worldChunk.getBlockEntities().values()) {
+                    if (SLSCarpetSettings.optimizedOnDragonRespawn && blockEntity instanceof TheEndGatewayBlockEntity) continue;
+                    if (blockEntity instanceof TheEndPortalBlockEntity) {
+                        BlockPattern.BlockPatternMatch result = this.exitPortalPattern.find(this.level, blockEntity.getBlockPos());
                         if (result != null) {
-                            BlockPos blockPos = result.translate(3, 3, 3).getBlockPos();
+                            BlockPos blockPos = result.getFrontTopLeft().offset(3, 3, 3);
                             if (this.exitPortalLocation == null) {
                                 this.exitPortalLocation = blockPos;
                             }
@@ -78,25 +75,25 @@ public class MixinEnderDragonFight {
                 }
             }
         }
-        if(this.doLegacyCheck || this.exitPortalLocation == null){
-            if(SLSCarpetSettings.optimizedOnDragonRespawn && defaultOriginY != -1) {
+        if (this.exitPortalLocation == null) {
+            if (SLSCarpetSettings.optimizedOnDragonRespawn && defaultOriginY != -1) {
                 i = defaultOriginY;
-            }
-            else {
-                i = this.world.getTopPosition(Heightmap.Type.MOTION_BLOCKING, EndPortalFeature.offsetOrigin(BlockPos.ORIGIN)).getY();
+            } else {
+                i = this.level.getHeight(Heightmap.Types.MOTION_BLOCKING, EndPodiumFeature.getLocation(BlockPos.ZERO).getX(), EndPodiumFeature.getLocation(BlockPos.ZERO).getZ());
             }
             boolean notFirstSearch = false;
-            for(j = i; j >= 0; --j) {
-                BlockPattern.Result result2;
-                if(SLSCarpetSettings.optimizedOnDragonRespawn && notFirstSearch) {
-                    result2 = partialSearchAround(this.endPortalPattern, this.world, new BlockPos(EndPortalFeature.offsetOrigin(BlockPos.ORIGIN).getX(), j, EndPortalFeature.offsetOrigin(BlockPos.ORIGIN).getZ()));
-                }
-                else{
-                    result2 = this.endPortalPattern.searchAround(this.world, new BlockPos(EndPortalFeature.offsetOrigin(BlockPos.ORIGIN).getX(), j, EndPortalFeature.offsetOrigin(BlockPos.ORIGIN).getZ()));
+            for (j = i; j >= 0; --j) {
+                BlockPattern.BlockPatternMatch result2;
+                BlockPos origin = EndPodiumFeature.getLocation(BlockPos.ZERO);
+                BlockPos searchPos = new BlockPos(origin.getX(), j, origin.getZ());
+                if (SLSCarpetSettings.optimizedOnDragonRespawn && notFirstSearch) {
+                    result2 = partialSearchAround(this.exitPortalPattern, this.level, searchPos);
+                } else {
+                    result2 = this.exitPortalPattern.find(this.level, searchPos);
                 }
                 if (result2 != null) {
                     if (this.exitPortalLocation == null) {
-                        this.exitPortalLocation = result2.translate(3, 3, 3).getBlockPos();
+                        this.exitPortalLocation = result2.getFrontTopLeft().offset(3, 3, 3);
                     }
                     defaultOriginY = j;
                     return result2;
@@ -108,22 +105,22 @@ public class MixinEnderDragonFight {
         return null;
     }
 
-    @Inject(method = "respawnDragon(Ljava/util/List;)V", at = @At("HEAD"))
-    private void resetCache(List<EndCrystalEntity> crystals, CallbackInfo ci) {
+    @Inject(method = "respawnDragon", at = @At("HEAD"))
+    private void resetCache(List<EndCrystal> crystals, CallbackInfo ci) {
         this.defaultChunkX = -8;
         this.defaultChunkZ = -8;
         this.defaultOriginY = -1;
     }
 
     @Unique
-    private BlockPattern.Result partialSearchAround(BlockPattern pattern, WorldView world, BlockPos pos) {
-        LoadingCache<BlockPos, CachedBlockPosition> loadingCache = BlockPattern.makeCache(world, false);
+    private BlockPattern.BlockPatternMatch partialSearchAround(BlockPattern pattern, LevelReader world, BlockPos pos) {
+        LoadingCache<BlockPos, BlockInWorld> loadingCache = BlockPattern.createLevelCache(world, false);
         int i = Math.max(Math.max(pattern.getWidth(), pattern.getHeight()), pattern.getDepth());
-        for (BlockPos blockPos : BlockPos.iterate(pos, pos.add(i - 1, 0, i - 1))) {
+        for (BlockPos blockPos : BlockPos.betweenClosed(pos, pos.offset(i - 1, 0, i - 1))) {
             for (Direction direction : Direction.values()) {
                 for (Direction direction2 : Direction.values()) {
-                    BlockPattern.Result result;
-                    if (direction2 == direction || direction2 == direction.getOpposite() || (result = ((BlockPatternTestTransformInvoker)pattern).invokeTestTransform(blockPos, direction, direction2, loadingCache)) == null) continue;
+                    BlockPattern.BlockPatternMatch result;
+                    if (direction2 == direction || direction2 == direction.getOpposite() || (result = ((BlockPatternTestTransformInvoker) pattern).invokeTestTransform(blockPos, direction, direction2, loadingCache)) == null) continue;
                     return result;
                 }
             }

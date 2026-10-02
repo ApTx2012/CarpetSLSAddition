@@ -6,30 +6,26 @@ import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
 import com.github.zly2006.carpetslsaddition.ServerMain;
 import com.github.zly2006.carpetslsaddition.util.access.SLSBotAccessor;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityPlayerMPFake.class)
-public abstract class MixinEntityPlayerMPFake extends ServerPlayerEntity implements SLSBotAccessor {
-    @Shadow public abstract void kill();
-
+public abstract class MixinEntityPlayerMPFake extends ServerPlayer implements SLSBotAccessor {
     @Unique
     private boolean bot = false;
     @Unique
     private long spawnTime = -1;
 
-    public MixinEntityPlayerMPFake(MinecraftServer server, ServerWorld world, GameProfile profile, SyncedClientOptions clientOptions) {
+    public MixinEntityPlayerMPFake(MinecraftServer server, ServerLevel world, GameProfile profile, ClientInformation clientOptions) {
         super(server, world, profile, clientOptions);
     }
 
@@ -64,15 +60,13 @@ public abstract class MixinEntityPlayerMPFake extends ServerPlayerEntity impleme
         long liveTime = currentTime - spawnTime;
 
         if (liveTime > SLSCarpetSettings.botMaxOnlineTime * 1000) {
-            ServerMain.server.getPlayerManager().broadcast(
-                    Text.literal(Translations.tr("carpet.slsa.bot.bot_timeout").formatted(this.getNameForScoreboard(), getFormattedTime(SLSCarpetSettings.botMaxOnlineTime)))
-                            .setStyle(
-                                    Style.EMPTY.withColor(Formatting.RED)
-                            ),
+            ServerMain.server.getPlayerList().broadcastSystemMessage(
+                    Component.literal(Translations.tr("carpet.slsa.bot.bot_timeout").formatted(this.getScoreboardName(), getFormattedTime(SLSCarpetSettings.botMaxOnlineTime)))
+                            .setStyle(Style.EMPTY.withColor(net.minecraft.ChatFormatting.RED)),
                     false
             );
 
-            this.kill();
+            this.kill((net.minecraft.server.level.ServerLevel) this.level());
         }
     }
 

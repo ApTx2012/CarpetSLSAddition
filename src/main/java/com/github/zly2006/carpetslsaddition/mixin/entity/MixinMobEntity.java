@@ -1,17 +1,17 @@
 package com.github.zly2006.carpetslsaddition.mixin.entity;
 
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
-import net.minecraft.entity.Leashable;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.Mob;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public abstract class MixinMobEntity implements Leashable {
-    @Shadow public abstract void detachLeash();
+    @Shadow public abstract void dropLeash();
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTick(CallbackInfo ci) {
@@ -22,6 +22,6 @@ public abstract class MixinMobEntity implements Leashable {
             return;
         }
 
-        this.detachLeash();
+        this.dropLeash();
     }
 }

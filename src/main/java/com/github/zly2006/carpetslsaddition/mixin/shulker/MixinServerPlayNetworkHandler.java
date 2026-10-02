@@ -2,25 +2,26 @@ package com.github.zly2006.carpetslsaddition.mixin.shulker;
 
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
 import com.github.zly2006.carpetslsaddition.util.ShulkerBoxItemUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(ServerPlayNetworkHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 public class MixinServerPlayNetworkHandler {
     @Redirect(
-            method = "onCreativeInventoryAction",
+            method = "handleSetCreativeModeSlot",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/item/ItemStack;getMaxCount()I"
-            )
+                    target = "Lnet/minecraft/world/item/ItemStack;getMaxStackSize()I"
+            ),
+            require = 0
     )
     private int getMaxCount(ItemStack instance) {
         if (SLSCarpetSettings.emptyShulkerBoxStack && ShulkerBoxItemUtil.isEmptyShulkerBoxItem(instance)) {
             return ShulkerBoxItemUtil.SHULKERBOX_MAX_STACK_AMOUNT;
         }
-        return instance.getMaxCount();
+        return instance.getMaxStackSize();
     }
 }

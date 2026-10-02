@@ -1,12 +1,12 @@
 package com.github.zly2006.carpetslsaddition.mixin.block;
 
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
-import net.minecraft.world.dimension.NetherPortal;
+import net.minecraft.world.level.portal.PortalShape;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(NetherPortal.class)
+@Mixin(PortalShape.class)
 public class MixinNetherPortal {
     @ModifyConstant(
             method = "*",

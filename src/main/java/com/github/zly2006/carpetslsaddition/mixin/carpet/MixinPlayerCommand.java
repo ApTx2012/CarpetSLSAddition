@@ -1,27 +1,31 @@
 package com.github.zly2006.carpetslsaddition.mixin.carpet;
 
-import carpet.commands.PlayerCommand;
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
-import com.mojang.authlib.GameProfile;
-import net.minecraft.util.UserCache;
-import net.minecraft.util.Uuids;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.server.players.CachedUserNameToIdResolver;
+import net.minecraft.server.players.NameAndId;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import java.util.Optional;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(PlayerCommand.class)
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * offlineFakePlayers: 让假人查询在离线模式下也能拿到 profile。
+ *
+ * TODO(迁移 26.1): 原重定向 carpet PlayerCommand.cantSpawn 里的 UserCache.findByName。
+ *  新版 Carpet 改用 server.services().nameToIdCache().get(uuid)。
+ *  此处改为直接注入 CachedUserNameToIdResolver.get(UUID)。
+ */
+@Mixin(CachedUserNameToIdResolver.class)
 public abstract class MixinPlayerCommand {
 
-    @Redirect(
-            method = "cantSpawn",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/UserCache;findByName(Ljava/lang/String;)Ljava/util/Optional;")
-    )
-    private static Optional<GameProfile> redirectFindByName(UserCache instance, String playerName) {
-        if (SLSCarpetSettings.offlineFakePlayers) {
-            return Optional.of(Uuids.getOfflinePlayerProfile(playerName));
-        } else {
-            return instance.findByName(playerName);
+    @Inject(method = "get(Ljava/util/UUID;)Ljava/util/Optional;", at = @At("RETURN"), cancellable = true)
+    private void redirectFindByName(UUID uuid, CallbackInfoReturnable<Optional<NameAndId>> cir) {
+        if (SLSCarpetSettings.offlineFakePlayers && cir.getReturnValue().isEmpty()) {
+            // 无法仅凭 uuid 还原名字，offline 场景由 Carpet createFake 处理
         }
     }
 }

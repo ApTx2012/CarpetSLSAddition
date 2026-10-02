@@ -3,21 +3,19 @@ package com.github.zly2006.carpetslsaddition.mixin.entity;
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
 import com.github.zly2006.carpetslsaddition.util.SitEntity;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class MixinServerPlayerEntity extends PlayerEntity  {
+@Mixin(ServerPlayer.class)
+public abstract class MixinServerPlayerEntity extends Player {
     @Shadow
-    public ServerPlayNetworkHandler networkHandler;
+    public ServerGamePacketListenerImpl connection;
 
     @Shadow public abstract boolean isSpectator();
 
@@ -26,15 +24,15 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity  {
     @Unique
     private long lastSneakTime = 0;
 
-    public MixinServerPlayerEntity(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    public MixinServerPlayerEntity(net.minecraft.world.level.Level world, net.minecraft.core.BlockPos pos, float yaw, GameProfile gameProfile) {
+        super(world, gameProfile);
     }
 
 
     @Override
-    public void setSneaking(boolean sneaking){
-        if (!SLSCarpetSettings.playerSit || (sneaking && this.isSneaking())) {
-            super.setSneaking(sneaking);
+    public void setShiftKeyDown(boolean sneaking){
+        if (!SLSCarpetSettings.playerSit || (sneaking && this.isShiftKeyDown())) {
+            super.setShiftKeyDown(sneaking);
             return;
         }
 
@@ -43,14 +41,14 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity  {
             if (nowTime - lastSneakTime < 400 && sneakTimes == 0) {
                 return;
             }
-            super.setSneaking(true);
-            if (this.isOnGround() && nowTime - lastSneakTime < 400) {
+            super.setShiftKeyDown(true);
+            if (this.onGround() && nowTime - lastSneakTime < 400) {
                 sneakTimes += 1;
                 if (sneakTimes == 3) {
-                    ArmorStandEntity armorStandEntity = new ArmorStandEntity(getWorld(), this.getX(), this.getY() - 0.16, this.getZ());
+                    ArmorStand armorStandEntity = new ArmorStand(this.level(), this.getX(), this.getY() - 0.16, this.getZ());
                     ((SitEntity) armorStandEntity).setSitEntity(true);
-                    getWorld().spawnEntity(armorStandEntity);
-                    this.setSneaking(false);
+                    this.level().addFreshEntity(armorStandEntity);
+                    this.setShiftKeyDown(false);
                     this.startRiding(armorStandEntity);
                     sneakTimes = 0;
                 }
@@ -59,11 +57,10 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity  {
             }
             lastSneakTime = nowTime;
         } else {
-            super.setSneaking(false);
+            super.setShiftKeyDown(false);
             // 同步潜行状态到客户端
-            // 如果不同步的话客户端会认为仍在潜行，从而碰撞箱的高度会计算错误
-            if (sneakTimes == 0 && this.networkHandler != null) {
-                this.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(this.getId(), this.getDataTracker().getChangedEntries()));
+            if (sneakTimes == 0 && this.connection != null) {
+                this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData().packDirty()));
             }
         }
     }

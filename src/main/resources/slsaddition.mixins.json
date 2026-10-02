@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.github.zly2006.carpetslsaddition.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "client": [
   ],
   "mixins": [
@@ -14,7 +14,7 @@
     "carpet.MixinEntityPlayerMPFake",
     "carpet.MixinPlayerCommand",
     "datapack.MixinVanillaResourcePackProvider",
-    "elytra.MixinElytraItem",
+    "elytra.ItemAccessor",
     "elytra.MixinItem",
     "entity.MixinArmadilloEntity",
     "entity.MixinArmorStandEntity",

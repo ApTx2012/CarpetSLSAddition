@@ -42,7 +42,7 @@ dependencies {
 	implementation "carpet:fabric-carpet:${project.carpet_core_version}"
 
 	// Fabric Permission API
-	include(implementation('me.lucko:fabric-permissions-api:0.3.1'))
+	include(implementation('me.lucko:fabric-permissions-api:0.7.0'))
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"

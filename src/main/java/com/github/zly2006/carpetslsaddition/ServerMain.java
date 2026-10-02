@@ -12,9 +12,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
-import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +29,7 @@ public class ServerMain implements ModInitializer, CarpetExtension {
     public static final Version MOD_VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-    static final Gson GSON = new GsonBuilder().setLenient().create();  // 使用宽容模式，避免部分开发者在书写JSON时不遵守RFC 4627规范
+    static final Gson GSON = new GsonBuilder().setLenient().create();
 
     public static ServerMain INSTANCE;
     public static MinecraftServer server;
@@ -74,7 +74,7 @@ public class ServerMain implements ModInitializer, CarpetExtension {
     }
 
     @Override
-    public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandBuildContext) {
+    public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext) {
         HatCommand.register(dispatcher);
         SitCommand.register(dispatcher);
         BotCommand.register(dispatcher);

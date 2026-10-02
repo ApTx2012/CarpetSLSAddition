@@ -1,13 +1,10 @@
 package com.github.zly2006.carpetslsaddition.mixin.datapack;
 
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
-import net.minecraft.resource.ResourcePackProfile;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.VanillaResourcePackProvider;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.ServerPacksSource;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,21 +16,17 @@ import java.util.function.Function;
 
 /**
  * @author zly2006
+ *
+ * TODO(迁移 26.1): 原 VanillaResourcePackProvider.forEachProfile 已不存在。
+ *  26.1 数据包系统重构为 PackRepository/BuiltInPackSource 体系。
+ *  此处需改为把 data/slsa/datapacks 作为内置数据包注册。
+ *  当前暂以 ServerPacksSource 为挂载点占位。
  */
-@Mixin(VanillaResourcePackProvider.class)
+@Mixin(ServerPacksSource.class)
 public abstract class MixinVanillaResourcePackProvider {
-    @Shadow protected abstract void forEachProfile(@Nullable Path namespacedPath, BiConsumer<String, Function<String, ResourcePackProfile>> consumer);
 
-    @Shadow @Final private ResourceType type;
-
-    @Inject(
-            method = "forEachProfile(Ljava/util/function/BiConsumer;)V",
-            at = @At("RETURN")
-    )
-    private void andMe(BiConsumer<String, Function<String, ResourcePackProfile>> consumer, CallbackInfo ci) throws URISyntaxException {
-        if (type == ResourceType.SERVER_DATA) {
-            Path path = Path.of(SLSCarpetSettings.class.getClassLoader().getResource("data/slsa/datapacks").toURI());
-            this.forEachProfile(path, consumer);
-        }
+    @Inject(method = "createVanillaPackSource", at = @At("RETURN"), require = 0)
+    private static void andMe(CallbackInfo ci) throws URISyntaxException {
+        // TODO: 实现内置 datapack 注册
     }
 }
