@@ -11,11 +11,14 @@ import net.minecraft.world.item.ItemStack;
 public class HatCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("hat")
-                .requires(CommandSourceStack::isPlayer)
-                .requires((commandSource) -> SLSCarpetSettings.canUseHatCommand)
                 .executes(context -> {
+                    if (!SLSCarpetSettings.canUseHatCommand) {
+                        return 0;
+                    }
                     ServerPlayer player = context.getSource().getPlayer();
-                    assert player != null;
+                    if (player == null) {
+                        return 0;
+                    }
                     ItemStack stack = player.getMainHandItem();
                     ItemStack head = player.getItemBySlot(EquipmentSlot.HEAD);
                     player.setItemSlot(EquipmentSlot.HEAD, stack);

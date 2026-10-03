@@ -12,11 +12,14 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 public class SitCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("sit")
-                .requires(CommandSourceStack::isPlayer)
-                .requires((commandSource) -> SLSCarpetSettings.canUseSitCommand)
                 .executes(context -> {
+                    if (!SLSCarpetSettings.canUseSitCommand) {
+                        return 0;
+                    }
                     ServerPlayer player = context.getSource().getPlayer();
-                    assert player != null;
+                    if (player == null) {
+                        return 0;
+                    }
 
                     if (player.getVehicle() != null || !player.onGround()) {  // 防止错误的坐下行为
                         return 1;
