@@ -32,7 +32,11 @@
     "shulker.MixinServerPlayNetworkHandler",
     "shulker.MixinSlot",
     "world.MixinSleepManager",
-    "world.MixinSpawnHelper"
+    "world.MixinSpawnHelper",
+    "turtle.PathNavigationAccessor",
+    "turtle.TurtleAccessor",
+    "turtle.TurtleGoHomeGoalMixin",
+    "turtle.TurtleLayEggGoalMixin"
   ],
   "injectors": {
     "defaultRequire": 1

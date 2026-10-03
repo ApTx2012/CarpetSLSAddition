@@ -68,4 +68,7 @@ public class SLSCarpetSettings {
 
     @Rule(categories = {SLSA, RuleCategory.FEATURE})
     public static int trialSpawnerCD = -1;
+
+    @Rule(categories = {SLSA, RuleCategory.FEATURE})
+    public static boolean turtleLocalNesting = false;
 }
