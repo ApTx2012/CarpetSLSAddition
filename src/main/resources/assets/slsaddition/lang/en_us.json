@@ -52,6 +52,10 @@
   "carpet.rule.armadilloImmediateDespawns.desc": "Armadillos will despawn immediately if they are 128 blocks away from the player.",
   "carpet.rule.turtleLocalNesting.name": "Turtle Local Nesting",
   "carpet.rule.turtleLocalNesting.desc": "Turtles carrying eggs will lay them on reachable sand near the closest local water source instead of returning to their birthplace.",
+  "carpet.rule.sturdyDecoratedPot.name": "Sturdy Decorated Pot",
+  "carpet.rule.sturdyDecoratedPot.desc": "Decorated pots are not shattered by projectiles.",
+  "carpet.rule.unbreakableDecoratedPot.name": "No Crack When Mining Pot",
+  "carpet.rule.unbreakableDecoratedPot.desc": "Breaking a decorated pot by a player does not produce the cracked effect.",
   "carpet.rule.trialSpawnerCD.desc": "trialSpawnerCD.",
 
   "carpet.rule.skipTicksForJoblessVillager.extra.0": "Set to 0 to maintain the vanilla behavior",

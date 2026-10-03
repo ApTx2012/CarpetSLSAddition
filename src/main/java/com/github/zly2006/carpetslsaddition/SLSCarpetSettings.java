@@ -71,4 +71,10 @@ public class SLSCarpetSettings {
 
     @Rule(categories = {SLSA, RuleCategory.FEATURE})
     public static boolean turtleLocalNesting = false;
+
+    @Rule(categories = {SLSA, RuleCategory.FEATURE})
+    public static boolean sturdyDecoratedPot = false;
+
+    @Rule(categories = {SLSA, RuleCategory.FEATURE})
+    public static boolean unbreakableDecoratedPot = false;
 }
