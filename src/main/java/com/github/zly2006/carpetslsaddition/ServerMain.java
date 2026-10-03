@@ -38,6 +38,7 @@ public class ServerMain implements ModInitializer, CarpetExtension {
 
     @Override
     public void onInitialize() {
+        LOGGER.info("[SLSA] onInitialize: managing Carpet extension");
         INSTANCE = this;
         CarpetServer.manageExtension(this);
     }
@@ -75,8 +76,14 @@ public class ServerMain implements ModInitializer, CarpetExtension {
 
     @Override
     public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext) {
-        HatCommand.register(dispatcher);
-        SitCommand.register(dispatcher);
-        BotCommand.register(dispatcher);
+        LOGGER.info("[SLSA] registerCommands called!");
+        try {
+            HatCommand.register(dispatcher);
+            SitCommand.register(dispatcher);
+            BotCommand.register(dispatcher);
+            LOGGER.info("[SLSA] commands registered: hat/sit/bot");
+        } catch (Throwable t) {
+            LOGGER.error("[SLSA] failed to register commands", t);
+        }
     }
 }

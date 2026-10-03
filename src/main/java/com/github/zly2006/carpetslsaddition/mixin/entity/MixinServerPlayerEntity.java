@@ -17,7 +17,6 @@ public abstract class MixinServerPlayerEntity extends Player {
     @Shadow
     public ServerGamePacketListenerImpl connection;
 
-    @Shadow public abstract boolean isSpectator();
 
     @Unique
     private int sneakTimes = 0;
@@ -60,7 +59,10 @@ public abstract class MixinServerPlayerEntity extends Player {
             super.setShiftKeyDown(false);
             // 同步潜行状态到客户端
             if (sneakTimes == 0 && this.connection != null) {
-                this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData().packDirty()));
+                java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> dirty = this.getEntityData().packDirty();
+                if (dirty != null) {
+                    this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), dirty));
+                }
             }
         }
     }

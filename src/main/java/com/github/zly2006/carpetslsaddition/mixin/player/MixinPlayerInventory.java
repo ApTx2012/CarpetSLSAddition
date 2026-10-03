@@ -11,18 +11,17 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Inventory.class)
 public abstract class MixinPlayerInventory implements Container, Nameable {
+    // creativeNoInfinitePickup：创造模式下满背包不能拾取。
+    // 新版 Inventory.add 在满背包 + hasInfiniteMaterials 时把数量清 0 并返回 true。
+    // 规则开启时改为 false，避免"假拾取"。
     @Redirect(
             method = "add(ILnet/minecraft/world/item/ItemStack;)Z",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/player/Player;isCreative()Z"
-            ),
-            require = 0
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;hasInfiniteMaterials()Z")
     )
     private boolean insertStack(Player instance) {
         if (SLSCarpetSettings.creativeNoInfinitePickup) {
             return false;
         }
-        return instance.isCreative();
+        return instance.hasInfiniteMaterials();
     }
 }

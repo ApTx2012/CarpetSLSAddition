@@ -53,10 +53,11 @@ loom {
 }
 
 processResources {
-	inputs.property "version", project.version
+	def modVersion = project.version
+	inputs.property "version", modVersion
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": modVersion
 	}
 }
 
@@ -76,8 +77,9 @@ java {
 }
 
 jar {
+	def baseName = project.base.archivesName.get()
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${baseName}"}
 	}
 }
 
