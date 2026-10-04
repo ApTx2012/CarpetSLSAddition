@@ -51,6 +51,34 @@ public class ServerMain implements ModInitializer, CarpetExtension {
     @Override
     public void onServerLoaded(MinecraftServer server) {
         ServerMain.server = server;
+        startLegacyRuleWatcher();
+    }
+
+    /** [旧版] 轮询规则状态，按需启停异步 chunk 线程。 */
+    private void startLegacyRuleWatcher() {
+        Thread watcher = new Thread(() -> {
+            boolean running = false;
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    boolean want = SLSCarpetSettings.legacyExploitMode
+                            && SLSCarpetSettings.legacyAsyncChunkAccess;
+                    if (want && !running) {
+                        com.github.zly2006.carpetslsaddition.util.LegacyAsyncExecutor.start();
+                        running = true;
+                    } else if (!want && running) {
+                        com.github.zly2006.carpetslsaddition.util.LegacyAsyncExecutor.stop();
+                        running = false;
+                    }
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    return;
+                } catch (Throwable t) {
+                    LOGGER.debug("[SLSA] legacy rule watcher error: {}", t.toString());
+                }
+            }
+        }, "SLSA-Legacy-RuleWatcher");
+        watcher.setDaemon(true);
+        watcher.start();
     }
 
     @Override

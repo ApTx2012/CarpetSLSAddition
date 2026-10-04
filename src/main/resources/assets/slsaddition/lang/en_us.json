@@ -2,6 +2,7 @@
   "carpet.category.pca": "PCA Adaption",
   "carpet.category.needClient":"Need client support",
   "carpet.category.protocol":"Protocol",
+  "carpet.category.legacy": "Legacy",
   
 
   "carpet.rule.obtainableReinforcedDeepSlate.name": "Obtainable reinforced deep slate",
@@ -72,5 +73,20 @@
   "carpet.slsa.bot.respawned": "The bot %s's online time has been reset.",
   "carpet.slsa.bot.not_a_bot": "The player %s is not created by carpet sls addition, so you can't reset the online time.",
 
-  "carpet.slsa.block.deep_slate_core": "Deepslate Core"
+  "carpet.slsa.block.deep_slate_core": "Deepslate Core",
+
+  "carpet.rule.legacyExploitMode.name": "Legacy exploit mode",
+  "carpet.rule.legacyExploitMode.desc": "Master switch: other rules under the [Legacy] category only take effect when enabled",
+  "carpet.rule.legacyInstantTick.name": "Instant scheduled tick",
+  "carpet.rule.legacyInstantTick.desc": "Equivalent to 1.12 instantTick: scheduled ticks execute immediately without delay",
+  "carpet.rule.legacyInstantFall.name": "Instant falling blocks",
+  "carpet.rule.legacyInstantFall.desc": "Equivalent to 1.12 instantFall: falling blocks fall immediately when scheduled",
+  "carpet.rule.legacyAsyncChunkAccess.name": "Async chunk access thread",
+  "carpet.rule.legacyAsyncChunkAccess.desc": "Spawns a background thread mimicking 1.12 beacon thread to access chunks concurrently",
+  "carpet.rule.legacyChunkSwap.name": "Chunk swap",
+  "carpet.rule.legacyChunkSwap.desc": "Allows async thread to treat a loaded chunk as unloaded via race condition, triggering reload and world population",
+  "carpet.rule.legacyFallingBlockReplace.name": "Falling block replace",
+  "carpet.rule.legacyFallingBlockReplace.desc": "Replaces the block with a target block during the falling block to entity window",
+  "carpet.rule.legacyFallingBlockTarget.name": "Falling replace target",
+  "carpet.rule.legacyFallingBlockTarget.desc": "Target block ID for falling block replace, #none to disable"
 }

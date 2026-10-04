@@ -2,6 +2,7 @@
   "carpet.category.pca": "PCA适配",
   "carpet.category.needClient": "需要客户端支持",
   "carpet.category.protocol": "协议",
+  "carpet.category.legacy": "旧版",
 
 
   "carpet.rule.obtainableReinforcedDeepSlate.name": "强化深板岩可获取",
@@ -72,5 +73,20 @@
   "carpet.slsa.bot.respawned": "假人%s的在线时长已重置！",
   "carpet.slsa.bot.not_a_bot": "假人%s不是由Carpet SLS Addition生成的，所以你不能重置它的在线时间！",
 
-  "carpet.slsa.block.deep_slate_core": "深板岩核心"
+  "carpet.slsa.block.deep_slate_core": "深板岩核心",
+
+  "carpet.rule.legacyExploitMode.name": "旧版漏洞模式",
+  "carpet.rule.legacyExploitMode.desc": "总开关：开启后[旧版]分类下的其余机制规则才会生效",
+  "carpet.rule.legacyInstantTick.name": "计划刻立即执行",
+  "carpet.rule.legacyInstantTick.desc": "等价1.12的instantTick：计划刻(scheduleTick)立即执行而不等待延迟",
+  "carpet.rule.legacyInstantFall.name": "重力方块瞬间下落",
+  "carpet.rule.legacyInstantFall.desc": "等价1.12的instantFall：重力方块被计划刻触发时立即下落",
+  "carpet.rule.legacyAsyncChunkAccess.name": "异步区块访问线程",
+  "carpet.rule.legacyAsyncChunkAccess.desc": "自建后台线程模拟1.12的信标线程，并发访问区块",
+  "carpet.rule.legacyChunkSwap.name": "区块替换",
+  "carpet.rule.legacyChunkSwap.desc": "允许异步线程在区块表竞态时把已加载区块当成未加载，触发重新加载与世界装饰",
+  "carpet.rule.legacyFallingBlockReplace.name": "落沙替换",
+  "carpet.rule.legacyFallingBlockReplace.desc": "在重力方块转为下落实体的窗口内，把方块替换为指定目标方块",
+  "carpet.rule.legacyFallingBlockTarget.name": "落沙替换目标方块",
+  "carpet.rule.legacyFallingBlockTarget.desc": "落沙替换的目标方块ID，#none为禁用"
 }
