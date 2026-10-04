@@ -20,6 +20,7 @@
     "legacy.FallingBlockEntityMixin",
     "legacy.ScheduledTickMixin",
     "legacy.ChunkMapMixin",
+    "legacy.LevelChunkMixin",
     "entity.MixinArmadilloEntity",
     "entity.MixinArmorStandEntity",
     "entity.MixinBoatEntity",
