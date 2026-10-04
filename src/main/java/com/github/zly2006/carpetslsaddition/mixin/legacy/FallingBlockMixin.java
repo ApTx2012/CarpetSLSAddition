@@ -11,37 +11,36 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * [旧版] 落沙替换 / 瞬间下落。
+ * [旧版] 瞬间下落（等价 1.12 的 instantFall flag）。
  *
- * <p>1.12 的漏洞窗口：BlockFalling 在创建 EntityFallingBlock 时【重新读取世界】的方块状态，
- * 若在"检查可下落"与"读取状态"之间被异步线程替换，就能得到任意方块的下落实体。
+ * <p>1.12：世界装饰时短暂开启 instantFall，使重力方块在被更新时【立即】转为下落实体，
+ * 而不等待 2gt 的计划刻延迟。26.1.2 已移除该 flag。
  *
- * <p>26.1.2 已把该窗口结构性消除（fall() 直接接收 state 参数，不重读世界）。
- * 本 mixin 用规则【重新引入】等价行为：
+ * <p>实现：
  * <ul>
- *   <li>legacyInstantFall：跳过计划刻延迟，立即下落（等价 1.12 的 instantFall flag）</li>
- *   <li>legacyFallingBlockReplace：在创建下落实体前，把状态替换为配置的目标方块</li>
+ *   <li>{@link #legacyDelayAfterPlace}：规则开启时把放置后的延迟改为 0，使下落尽快触发。</li>
+ *   <li>{@link #legacyTick}：保留 tick 入口的标记逻辑。</li>
  * </ul>
  */
 @Mixin(FallingBlock.class)
-public class FallingBlockMixin {
+public abstract class FallingBlockMixin {
 
-    // instantFall 等价：在 tick 入口，若规则开启，直接执行"立即下落"分支。
-    // 26.1.2 的 tick 已是计划刻回调，这里仅在规则开启时额外触发一次立即下落逻辑。
-    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    /** instantFall：把"放置后延迟"改为 0（最小延迟）。 */
+    @Inject(method = "getDelayAfterPlace", at = @At("HEAD"), cancellable = true)
+    private void legacyDelayAfterPlace(CallbackInfoReturnable<Integer> cir) {
+        if (SLSCarpetSettings.legacyExploitMode && SLSCarpetSettings.legacyInstantFall) {
+            cir.setReturnValue(0);
+        }
+    }
+
+    /** instantFall：tick 入口标记（供其他机制判断窗口）。 */
+    @Inject(method = "tick", at = @At("HEAD"))
     private void legacyTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource rand, CallbackInfo ci) {
-        if (!SLSCarpetSettings.legacyExploitMode) {
-            return;
-        }
-        if (SLSCarpetSettings.legacyInstantFall) {
-            // 标记：本次下落由 instantFall 触发（供替换逻辑判断窗口）
+        if (SLSCarpetSettings.legacyExploitMode && SLSCarpetSettings.legacyInstantFall) {
             LegacyExploitState.markInstantFall(pos);
-        }
-        if (SLSCarpetSettings.legacyFallingBlockReplace) {
-            // 由 FallingBlockEntityMixin.fall 处接管状态替换
-            LegacyExploitState.setReplaceTarget(SLSCarpetSettings.legacyFallingBlockTarget);
         }
     }
 }
