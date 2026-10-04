@@ -2,7 +2,7 @@
   "carpet.category.pca": "PCA Adaption",
   "carpet.category.needClient":"Need client support",
   "carpet.category.protocol":"Protocol",
-  "carpet.category.legacy": "Legacy",
+  "carpet.category.旧版": "Legacy",
   
 
   "carpet.rule.obtainableReinforcedDeepSlate.name": "Obtainable reinforced deep slate",
