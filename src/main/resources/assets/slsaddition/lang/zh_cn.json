@@ -2,7 +2,7 @@
   "carpet.category.pca": "PCA适配",
   "carpet.category.needClient": "需要客户端支持",
   "carpet.category.protocol": "协议",
-  "carpet.category.旧版": "旧版",
+  "carpet.category.legacy": "旧版",
 
 
   "carpet.rule.obtainableReinforcedDeepSlate.name": "强化深板岩可获取",

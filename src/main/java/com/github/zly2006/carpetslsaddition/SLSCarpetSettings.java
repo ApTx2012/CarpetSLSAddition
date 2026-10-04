@@ -7,7 +7,7 @@ public class SLSCarpetSettings {
     public static final String NEED_CLIENT = "needClient";  // 需要客户端安装SLS-Addition或实现相关支持
     public static final String FROM_AMS = "AMS";
     public static final String SLSA = "SLS";
-    public static final String LEGACY = "旧版";
+    public static final String LEGACY = "legacy";
 
     @Rule(categories = {SLSA, RuleCategory.SURVIVAL})
     public static boolean obtainableReinforcedDeepSlate = false;
