@@ -34,7 +34,6 @@ public abstract class FallingBlockMixin {
     @Inject(method = "getDelayAfterPlace", at = @At("HEAD"), cancellable = true)
     private void legacyDelayAfterPlace(CallbackInfoReturnable<Integer> cir) {
         if (SLSCarpetSettings.legacyExploitMode && SLSCarpetSettings.legacyInstantFall) {
-            com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-DEBUG] getDelayAfterPlace called -> 0");
             cir.setReturnValue(0);
         }
     }
@@ -73,7 +72,6 @@ public abstract class FallingBlockMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void legacyTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource rand, CallbackInfo ci) {
         if (SLSCarpetSettings.legacyExploitMode && SLSCarpetSettings.legacyInstantFall) {
-            com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-DEBUG] FallingBlock.tick pos={}", pos);
             LegacyExploitState.markInstantFall(pos);
         }
     }
