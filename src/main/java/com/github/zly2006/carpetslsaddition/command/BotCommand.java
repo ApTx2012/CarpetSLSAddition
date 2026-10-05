@@ -352,7 +352,7 @@ public class BotCommand {
     }
 
     @SuppressWarnings("unchecked")
-    private static EntityPlayerMPFake createBot(String username, MinecraftServer server, Vec3 pos, double yaw, double pitch, ResourceKey<Level> dimensionId) {
+    public static EntityPlayerMPFake createBot(String username, MinecraftServer server, Vec3 pos, double yaw, double pitch, ResourceKey<Level> dimensionId) {
         ServerLevel worldIn = server.getLevel(dimensionId);
         server.services().nameToIdCache().resolveOfflineUsers(false);
         GameProfile gameprofile;

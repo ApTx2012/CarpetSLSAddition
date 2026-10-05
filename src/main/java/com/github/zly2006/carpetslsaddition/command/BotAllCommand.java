@@ -74,7 +74,12 @@ public class BotAllCommand {
                         .then(literal("left").executes(batch(ap -> ap.setStrafing(1))))
                         .then(literal("right").executes(batch(ap -> ap.setStrafing(-1)))))
                 .then(literal("sit").executes(BotAllCommand::sitAll))
-                .then(literal("stand").executes(BotAllCommand::standAll));
+                .then(literal("stand").executes(BotAllCommand::standAll))
+                .then(literal("spawn")
+                        .then(argument("prefix", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                .then(argument("count", IntegerArgumentType.integer(1, 1000))
+                                        .executes(BotAllCommand::spawnBatch))))
+                .then(literal("kill").executes(BotAllCommand::killBatch));
         dispatcher.register(command);
     }
 
@@ -156,6 +161,44 @@ public class BotAllCommand {
         final int done = ok;
         context.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.literal(
                 "[SLSA] 已让 " + done + "/" + bots.size() + " 个假人站起"), false);
+        return ok;
+    }
+
+    /** 批量召唤：生成 前缀1 ~ 前缀N。 */
+    private static int spawnBatch(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        String prefix = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "prefix");
+        int count = IntegerArgumentType.getInteger(context, "count");
+        net.minecraft.world.phys.Vec3 pos = source.getPosition();
+        net.minecraft.world.phys.Vec2 rot = source.getRotation();
+        net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dim = source.getLevel().dimension();
+        int ok = 0;
+        for (int i = 1; i <= count; i++) {
+            String name = prefix + i;
+            try {
+                var bot = BotCommand.createBot(name, source.getServer(), pos, rot.y, rot.x, dim);
+                if (bot != null) ok++;
+            } catch (Throwable t) {
+                com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.warn("[SLSA] spawn bot {} failed: {}", name, t.toString());
+            }
+        }
+        final int done = ok;
+        source.sendSuccess(() -> net.minecraft.network.chat.Component.literal(
+                "[SLSA] 已召唤 " + done + "/" + count + " 个假人（前缀 " + prefix + "）"), false);
+        return ok;
+    }
+
+    /** 批量移除：杀死受名单限制的假人（名单空则全部）。 */
+    private static int killBatch(CommandContext<CommandSourceStack> context) {
+        List<ServerPlayer> bots = collectBots(context.getSource());
+        int ok = 0;
+        for (ServerPlayer bot : bots) {
+            bot.kill((net.minecraft.server.level.ServerLevel) bot.level());
+            ok++;
+        }
+        final int done = ok;
+        context.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.literal(
+                "[SLSA] 已移除 " + done + " 个假人"), false);
         return ok;
     }
 }
