@@ -29,7 +29,7 @@ public interface ItemInstanceMixin {
         if (!SLSCarpetSettings.stackableVehicles) {
             return;
         }
-        if (!(this instanceof ItemStack stack)) {
+        if (!((Object) this instanceof ItemStack stack)) {
             return;
         }
         Item item = stack.getItem();
