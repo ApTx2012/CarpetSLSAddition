@@ -12,7 +12,7 @@
     "block.MixinDecoratedPotBlock",
     "block.MixinTrialSpawnerData",
     "block.MixinTrialSpawnerState",
-    "item.ItemInstanceMixin",
+    "item.SlotMixin",
     "carpet.MixinEntityPlayerMPFake",
     "carpet.MixinPlayerCommand",
     "elytra.ItemAccessor",
