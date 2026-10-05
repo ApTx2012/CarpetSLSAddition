@@ -72,5 +72,7 @@
   "carpet.slsa.bot.respawned": "The bot %s's online time has been reset.",
   "carpet.slsa.bot.not_a_bot": "The player %s is not created by carpet sls addition, so you can't reset the online time.",
 
-  "carpet.slsa.block.deep_slate_core": "Deepslate Core"
+  "carpet.slsa.block.deep_slate_core": "Deepslate Core",
+  "carpet.rule.stackableVehicles.name": "Stackable vehicles",
+  "carpet.rule.stackableVehicles.desc": "Minecarts and boats can stack up to 64, auto-merging on pickup"
 }

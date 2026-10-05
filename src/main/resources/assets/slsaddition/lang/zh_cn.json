@@ -72,5 +72,7 @@
   "carpet.slsa.bot.respawned": "假人%s的在线时长已重置！",
   "carpet.slsa.bot.not_a_bot": "假人%s不是由Carpet SLS Addition生成的，所以你不能重置它的在线时间！",
 
-  "carpet.slsa.block.deep_slate_core": "深板岩核心"
+  "carpet.slsa.block.deep_slate_core": "深板岩核心",
+  "carpet.rule.stackableVehicles.name": "载具可堆叠",
+  "carpet.rule.stackableVehicles.desc": "矿车和船的物品可以堆叠到64，拾取时自动合并"
 }
