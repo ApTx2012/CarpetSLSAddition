@@ -76,6 +76,7 @@ public class BotAllCommand {
                 .then(literal("sit").executes(BotAllCommand::sitAll))
                 .then(literal("stand").executes(BotAllCommand::standAll))
                 .then(literal("spawn")
+                        .then(literal("list").executes(BotAllCommand::spawnFromList))
                         .then(argument("prefix", com.mojang.brigadier.arguments.StringArgumentType.word())
                                 .then(argument("count", IntegerArgumentType.integer(1, 1000))
                                         .executes(BotAllCommand::spawnBatch))))
@@ -161,6 +162,35 @@ public class BotAllCommand {
         final int done = ok;
         context.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.literal(
                 "[SLSA] 已让 " + done + "/" + bots.size() + " 个假人站起"), false);
+        return ok;
+    }
+
+    /** 一键召唤名单里的所有假人（执行者位置）。 */
+    private static int spawnFromList(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        java.util.Set<String> names = com.github.zly2006.carpetslsaddition.util.BotListManager.getNames();
+        if (names.isEmpty()) {
+            source.sendSuccess(() -> net.minecraft.network.chat.Component.literal(
+                    "[SLSA] 名单为空，先用 /botlist add 添加名字"), false);
+            return 0;
+        }
+        net.minecraft.world.phys.Vec3 pos = source.getPosition();
+        net.minecraft.world.phys.Vec2 rot = source.getRotation();
+        net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dim = source.getLevel().dimension();
+        int ok = 0;
+        for (String name : names) {
+            // 已在线的跳过
+            if (source.getServer().getPlayerList().getPlayerByName(name) != null) continue;
+            try {
+                var bot = BotCommand.createBot(name, source.getServer(), pos, rot.y, rot.x, dim);
+                if (bot != null) ok++;
+            } catch (Throwable t) {
+                com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.warn("[SLSA] spawn list bot {} failed: {}", name, t.toString());
+            }
+        }
+        final int done = ok;
+        source.sendSuccess(() -> net.minecraft.network.chat.Component.literal(
+                "[SLSA] 已召唤名单中的 " + done + "/" + names.size() + " 个假人"), false);
         return ok;
     }
 
