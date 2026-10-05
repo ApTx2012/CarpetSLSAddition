@@ -4,6 +4,7 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import com.github.zly2006.carpetslsaddition.command.BotAllCommand;
 import com.github.zly2006.carpetslsaddition.command.BotCommand;
+import com.github.zly2006.carpetslsaddition.command.BotListCommand;
 import com.github.zly2006.carpetslsaddition.command.HatCommand;
 import com.github.zly2006.carpetslsaddition.command.SitCommand;
 import com.google.common.collect.Maps;
@@ -83,6 +84,7 @@ public class ServerMain implements ModInitializer, CarpetExtension {
             SitCommand.register(dispatcher);
             BotCommand.register(dispatcher);
             BotAllCommand.register(dispatcher);
+            BotListCommand.register(dispatcher);
             LOGGER.info("[SLSA] commands registered: hat/sit/bot");
         } catch (Throwable t) {
             LOGGER.error("[SLSA] failed to register commands", t);

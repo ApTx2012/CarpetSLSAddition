@@ -112,18 +112,21 @@ public class BotAllCommand {
         return c -> batchAp(c, action);
     }
 
-    /** 收集所有本模组生成的假人。 */
+    /** 收集所有本模组生成的假人（受名单限制：名单非空时只取名单内的）。 */
     private static List<ServerPlayer> collectBots(CommandSourceStack source) {
         MinecraftServer server = source.getServer();
         List<ServerPlayer> bots = new ArrayList<>();
+        boolean filterByList = !com.github.zly2006.carpetslsaddition.util.BotListManager.isEmpty();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (player instanceof EntityPlayerMPFake && ((SLSBotAccessor) player).carpet_SLS_Addition$isBot()) {
+                if (filterByList && !com.github.zly2006.carpetslsaddition.util.BotListManager.contains(player.getScoreboardName())) {
+                    continue;
+                }
                 bots.add(player);
             }
         }
         return bots;
     }
-
     private static int sitAll(CommandContext<CommandSourceStack> context) {
         if (!SLSCarpetSettings.canUseSitCommand) {
             context.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.literal(
