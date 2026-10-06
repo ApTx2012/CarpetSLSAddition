@@ -4,6 +4,9 @@ import com.github.zly2006.carpetslsaddition.ServerMain;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.ServerStatsCounter;
+import net.minecraft.stats.Stat;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.ScoreAccess;
 import net.minecraft.world.scores.ScoreHolder;
@@ -13,12 +16,14 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 /**
  * 死亡榜 / 挖掘榜的 scoreboard 管理器（服务端）。
  *
- * <ul>
- *   <li>{@code sls_deaths}：使用原版 {@link ObjectiveCriteria#DEATH_COUNT} 判据，自动统计死亡次数。</li>
- *   <li>{@code sls_mined}：使用 {@link ObjectiveCriteria#DUMMY} 判据，由 {@code BoardEvents} 在破坏方块时写入。</li>
- * </ul>
+ * <p>数据源是 vanilla stats，但 stats 不会自动同步给其他客户端。
+ * 因此本类定期把 stats 的聚合值写入 scoreboard objective，
+ * 客户端再用原版计分板侧边栏显示（scoreboard 会自动同步给所有客户端）。
  *
- * <p>objective 在服务器启动时自动创建；客户端会同步到这两个 objective，用于 HUD 显示。
+ * <ul>
+ *   <li>{@code sls_deaths}：死亡次数（DUMMY 判据，从 stats 的 {@link Stats#DEATHS} 写入）。</li>
+ *   <li>{@code sls_mined}：挖掘总数（DUMMY 判据，从 stats 的 {@link Stats#BLOCK_MINED} 聚合）。</li>
+ * </ul>
  */
 public final class BoardManager {
 
@@ -31,41 +36,54 @@ public final class BoardManager {
     public static void ensureObjectives(MinecraftServer server) {
         Scoreboard sb = server.getScoreboard();
         if (sb.getObjective(OBJ_DEATHS) == null) {
-            sb.addObjective(
-                    OBJ_DEATHS,
-                    ObjectiveCriteria.DEATH_COUNT,
-                    Component.literal("死亡榜"),
-                    ObjectiveCriteria.RenderType.INTEGER,
-                    true,
-                    null
-            );
+            sb.addObjective(OBJ_DEATHS, ObjectiveCriteria.DUMMY,
+                    Component.literal("死亡榜"), ObjectiveCriteria.RenderType.INTEGER, true, null);
             ServerMain.LOGGER.info("[SLSA] created scoreboard objective {}", OBJ_DEATHS);
         }
         if (sb.getObjective(OBJ_MINED) == null) {
-            sb.addObjective(
-                    OBJ_MINED,
-                    ObjectiveCriteria.DUMMY,
-                    Component.literal("挖掘榜"),
-                    ObjectiveCriteria.RenderType.INTEGER,
-                    true,
-                    null
-            );
+            sb.addObjective(OBJ_MINED, ObjectiveCriteria.DUMMY,
+                    Component.literal("挖掘榜"), ObjectiveCriteria.RenderType.INTEGER, true, null);
             ServerMain.LOGGER.info("[SLSA] created scoreboard objective {}", OBJ_MINED);
         }
     }
 
-    /** 玩家破坏一个方块 → 挖掘榜 +1。 */
-    public static void onBlockMined(ServerPlayer player, int count) {
-        MinecraftServer server = ServerMain.server;
-        if (server == null) {
-            return;
+    /** 读取某玩家的挖掘总数（遍历 stats map 中 BLOCK_MINED 类型条目）。 */
+    private static int totalMined(ServerStatsCounter counter) {
+        int sum = 0;
+        for (Stat<?> stat : counter.stats.keySet()) {
+            if (stat.getType() == Stats.BLOCK_MINED) {
+                sum += counter.getValue(stat);
+            }
         }
-        Scoreboard sb = server.getScoreboard();
-        Objective obj = sb.getObjective(OBJ_MINED);
+        return sum;
+    }
+
+    /** 读取某玩家的死亡次数。 */
+    private static int totalDeaths(ServerStatsCounter counter) {
+        return counter.getValue(Stats.CUSTOM, Stats.DEATHS);
+    }
+
+    /** 把一个分数写入 objective（若不存在则创建/更新）。 */
+    private static void setScore(Scoreboard sb, Objective obj, ServerPlayer player, int value) {
         if (obj == null) {
             return;
         }
         ScoreAccess access = sb.getOrCreatePlayerScore((ScoreHolder) player, obj);
-        access.add(count);
+        access.set(value);
+    }
+
+    /** 从 stats 同步所有在线玩家的分数到 scoreboard（定期调用）。 */
+    public static void syncScores(MinecraftServer server) {
+        Scoreboard sb = server.getScoreboard();
+        Objective deaths = sb.getObjective(OBJ_DEATHS);
+        Objective mined = sb.getObjective(OBJ_MINED);
+        if (deaths == null && mined == null) {
+            return;
+        }
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            ServerStatsCounter counter = player.getStats();
+            setScore(sb, deaths, player, totalDeaths(counter));
+            setScore(sb, mined, player, totalMined(counter));
+        }
     }
 }
