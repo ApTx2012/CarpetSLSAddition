@@ -50,6 +50,7 @@ public final class BoardSyncManager {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             ServerStatsCounter counter = player.getStats();
             int score = BOARD_MINED.equals(board) ? totalMined(counter) : deaths(counter);
+            com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-BOARD] player={} board={} score={}", player.getScoreboardName(), board, score);
             if (score > 0) {
                 list.add(new BoardSyncPayload.Entry(player.getScoreboardName(), score));
             }
@@ -73,8 +74,11 @@ public final class BoardSyncManager {
         if (!enabled) {
             return;
         }
-        ServerPlayNetworking.send(player, new BoardSyncPayload(BOARD_DEATHS, buildBoard(server, BOARD_DEATHS)));
-        ServerPlayNetworking.send(player, new BoardSyncPayload(BOARD_MINED, buildBoard(server, BOARD_MINED)));
+        List<BoardSyncPayload.Entry> d = buildBoard(server, BOARD_DEATHS);
+        List<BoardSyncPayload.Entry> m = buildBoard(server, BOARD_MINED);
+        com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-BOARD] syncTo {} deaths={} mined={}", player.getScoreboardName(), d.size(), m.size());
+        ServerPlayNetworking.send(player, new BoardSyncPayload(BOARD_DEATHS, d));
+        ServerPlayNetworking.send(player, new BoardSyncPayload(BOARD_MINED, m));
     }
 
     /** 同步给所有在线玩家。 */
