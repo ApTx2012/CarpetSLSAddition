@@ -106,8 +106,6 @@ public final class BoardManager {
         Objective obj = objectiveName == null || objectiveName.isEmpty()
                 ? null
                 : server.getScoreboard().getObjective(objectiveName);
-        ServerMain.LOGGER.info("[SLSA-BOARD] onClientRequest player={} name={} obj={}",
-                player.getScoreboardName(), objectiveName, obj);
         // 干净重建客户端该 objective：先 REMOVE（客户端没有则忽略），再 ADD + 分数包
         if (obj != null) {
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket(
