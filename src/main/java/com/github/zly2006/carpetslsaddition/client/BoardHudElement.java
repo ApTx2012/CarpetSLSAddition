@@ -41,6 +41,9 @@ public class BoardHudElement implements HudElement {
         }
         Font font = mc.font;
 
+        // 关键：进入新的渲染层，否则画的内容不显示
+        g.nextStratum();
+
         String title = BoardClientState.currentTitle();
         int maxW = font.width(title);
         for (BoardClientState.Entry e : list) {
