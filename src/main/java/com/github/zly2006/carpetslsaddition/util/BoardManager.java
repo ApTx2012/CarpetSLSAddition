@@ -108,7 +108,21 @@ public final class BoardManager {
                 : server.getScoreboard().getObjective(objectiveName);
         ServerMain.LOGGER.info("[SLSA-BOARD] onClientRequest player={} name={} obj={}",
                 player.getScoreboardName(), objectiveName, obj);
-        // 直接给该玩家发 display 包（slot=SIDEBAR，objective 可为 null 表示清除）
+        // 干净重建客户端该 objective：先 REMOVE（客户端没有则忽略），再 ADD + 分数包
+        if (obj != null) {
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket(
+                    obj, net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.METHOD_REMOVE));
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket(
+                    obj, net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.METHOD_ADD));
+            if (server.getScoreboard() instanceof net.minecraft.server.ServerScoreboard ssb) {
+                for (var pkt : ssb.getStartTrackingPackets(obj)) {
+                    if (pkt instanceof net.minecraft.network.protocol.game.ClientboundSetScorePacket) {
+                        player.connection.send(pkt);
+                    }
+                }
+            }
+        }
+        // 发 display 包（slot=SIDEBAR，objective 可为 null 表示清除）
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(
                 net.minecraft.world.scores.DisplaySlot.SIDEBAR, obj));
     }
