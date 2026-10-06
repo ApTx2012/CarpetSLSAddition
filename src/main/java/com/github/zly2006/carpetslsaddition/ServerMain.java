@@ -44,6 +44,7 @@ public class ServerMain implements ModInitializer, CarpetExtension {
         INSTANCE = this;
         CarpetServer.manageExtension(this);
         com.github.zly2006.carpetslsaddition.net.BoardSyncPayload.register();
+        com.github.zly2006.carpetslsaddition.net.BoardTogglePayload.register();
         // 玩家加入时同步榜单
         net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register(
                 (handler, sender, srv) ->
@@ -60,6 +61,25 @@ public class ServerMain implements ModInitializer, CarpetExtension {
         ServerMain.server = server;
         com.github.zly2006.carpetslsaddition.util.BotListManager.load();
         com.github.zly2006.carpetslsaddition.util.BoardSyncManager.syncToAll(server);
+        startBoardWatcher(server);
+    }
+
+    /** 每秒检测 slsBoardEnabled 规则变化并同步给客户端。 */
+    private void startBoardWatcher(MinecraftServer server) {
+        Thread t = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    com.github.zly2006.carpetslsaddition.util.BoardSyncManager.tick(server);
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    return;
+                } catch (Throwable ex) {
+                    LOGGER.debug("[SLSA] board watcher error: {}", ex.toString());
+                }
+            }
+        }, "SLSA-BoardWatcher");
+        t.setDaemon(true);
+        t.start();
     }
 
     @Override

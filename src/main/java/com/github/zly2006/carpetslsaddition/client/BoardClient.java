@@ -1,6 +1,7 @@
 package com.github.zly2006.carpetslsaddition.client;
 
 import com.github.zly2006.carpetslsaddition.net.BoardSyncPayload;
+import com.github.zly2006.carpetslsaddition.net.BoardTogglePayload;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -38,24 +39,27 @@ public class BoardClient implements ClientModInitializer {
             context.client().execute(() -> BoardClientState.setBoard(payload.board(), entries));
         });
 
+        // 接收开关状态
+        ClientPlayNetworking.registerGlobalReceiver(BoardTogglePayload.TYPE, (payload, context) -> {
+            context.client().execute(() -> BoardClientState.enabled = payload.enabled());
+        });
+
         // 2) /slsboard 命令（纯客户端，非 OP 也能用）
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(
                     ClientCommands.literal("slsboard")
                             .then(ClientCommands.literal("deaths")
-                                    .executes(c -> { BoardClientState.toggle("deaths"); feedback(c.getSource()); return 1; }))
+                                    .executes(c -> run(c.getSource(), () -> BoardClientState.toggle("deaths"))))
                             .then(ClientCommands.literal("mined")
-                                    .executes(c -> { BoardClientState.toggle("mined"); feedback(c.getSource()); return 1; }))
+                                    .executes(c -> run(c.getSource(), () -> BoardClientState.toggle("mined"))))
                             .then(ClientCommands.literal("off")
-                                    .executes(c -> { BoardClientState.set(""); feedback(c.getSource()); return 1; }))
+                                    .executes(c -> run(c.getSource(), () -> BoardClientState.set(""))))
                             .then(ClientCommands.argument("board", StringArgumentType.word())
                                     .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                             new String[]{"deaths", "mined", "off"}, b))
                                     .executes(c -> {
                                         String v = StringArgumentType.getString(c, "board");
-                                        BoardClientState.set("off".equals(v) ? "" : v);
-                                        feedback(c.getSource());
-                                        return 1;
+                                        return run(c.getSource(), () -> BoardClientState.set("off".equals(v) ? "" : v));
                                     }))
             );
         });
@@ -64,8 +68,15 @@ public class BoardClient implements ClientModInitializer {
         HudElementRegistry.addLast(HUD_ID, new BoardHudElement());
     }
 
-    private static void feedback(FabricClientCommandSource source) {
+    /** 统一的命令入口：先检查服务端开关，再执行动作。 */
+    private static int run(FabricClientCommandSource source, Runnable action) {
+        if (!BoardClientState.enabled) {
+            source.sendError(Component.literal("[SLSA] 榜单功能未开启（服务端 /carpet slsBoardEnabled true）"));
+            return 0;
+        }
+        action.run();
         String d = BoardClientState.displaying;
         source.sendFeedback(Component.literal("[SLSA] 榜单显示：" + (d.isEmpty() ? "关闭" : d)));
+        return 1;
     }
 }

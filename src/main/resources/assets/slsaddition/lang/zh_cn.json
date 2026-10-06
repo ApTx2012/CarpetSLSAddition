@@ -74,5 +74,7 @@
 
   "carpet.slsa.block.deep_slate_core": "深板岩核心",
   "carpet.rule.stackableVehicles.name": "载具可堆叠",
-  "carpet.rule.stackableVehicles.desc": "矿车和船的物品可以堆叠到64，拾取时自动合并"
+  "carpet.rule.stackableVehicles.desc": "矿车和船的物品可以堆叠到64，拾取时自动合并",
+  "carpet.rule.slsBoardEnabled.name": "启用榜单",
+  "carpet.rule.slsBoardEnabled.desc": "允许玩家用 /slsboard 显示死亡榜/挖掘榜"
 }

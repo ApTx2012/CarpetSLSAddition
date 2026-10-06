@@ -74,5 +74,7 @@
 
   "carpet.slsa.block.deep_slate_core": "Deepslate Core",
   "carpet.rule.stackableVehicles.name": "Stackable vehicles",
-  "carpet.rule.stackableVehicles.desc": "Minecarts and boats can stack up to 64, auto-merging on pickup"
+  "carpet.rule.stackableVehicles.desc": "Minecarts and boats can stack up to 64, auto-merging on pickup",
+  "carpet.rule.slsBoardEnabled.name": "Enable boards",
+  "carpet.rule.slsBoardEnabled.desc": "Allow players to use /slsboard to show death/mining leaderboards"
 }

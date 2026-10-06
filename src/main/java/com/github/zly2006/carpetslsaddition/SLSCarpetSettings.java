@@ -80,4 +80,7 @@ public class SLSCarpetSettings {
 
     @Rule(categories = {SLSA, RuleCategory.FEATURE})
     public static boolean stackableVehicles = false;
+
+    @Rule(categories = {SLSA, RuleCategory.FEATURE})
+    public static boolean slsBoardEnabled = false;
 }

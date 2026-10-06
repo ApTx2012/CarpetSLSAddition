@@ -61,10 +61,16 @@ public final class BoardSyncManager {
         return list;
     }
 
-    /** 把两个榜单都同步给某玩家。 */
+    /** 把两个榜单 + 开关状态同步给某玩家。 */
     public static void syncTo(ServerPlayer player) {
         MinecraftServer server = ServerMain.server;
         if (server == null) {
+            return;
+        }
+        boolean enabled = com.github.zly2006.carpetslsaddition.SLSCarpetSettings.slsBoardEnabled;
+        // 先发开关状态
+        ServerPlayNetworking.send(player, new com.github.zly2006.carpetslsaddition.net.BoardTogglePayload(enabled));
+        if (!enabled) {
             return;
         }
         ServerPlayNetworking.send(player, new BoardSyncPayload(BOARD_DEATHS, buildBoard(server, BOARD_DEATHS)));
@@ -75,6 +81,17 @@ public final class BoardSyncManager {
     public static void syncToAll(MinecraftServer server) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             syncTo(player);
+        }
+    }
+
+    private static volatile Boolean lastEnabled = null;
+
+    /** 由轮询线程每秒调用：规则值变化时同步给所有玩家。 */
+    public static void tick(MinecraftServer server) {
+        boolean now = com.github.zly2006.carpetslsaddition.SLSCarpetSettings.slsBoardEnabled;
+        if (lastEnabled == null || lastEnabled != now) {
+            lastEnabled = now;
+            syncToAll(server);
         }
     }
 }

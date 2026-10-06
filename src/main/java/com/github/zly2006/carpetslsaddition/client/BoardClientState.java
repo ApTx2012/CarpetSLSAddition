@@ -19,6 +19,9 @@ public final class BoardClientState {
     /** 当前显示的榜："" / "deaths" / "mined"。 */
     public static volatile String displaying = "";
 
+    /** 服务端 Carpet 规则 slsBoardEnabled 的状态（未开启则禁止使用）。 */
+    public static volatile boolean enabled = false;
+
     private static volatile List<Entry> deaths = Collections.emptyList();
     private static volatile List<Entry> mined = Collections.emptyList();
 
