@@ -13,7 +13,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 public record BoardTogglePayload(boolean enabled) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<BoardTogglePayload> TYPE =
-            CustomPacketPayload.createType("slsa:board_toggle");
+            new CustomPacketPayload.Type<>(net.minecraft.resources.Identifier.fromNamespaceAndPath("slsa", "board_toggle"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, BoardTogglePayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, BoardTogglePayload::enabled,

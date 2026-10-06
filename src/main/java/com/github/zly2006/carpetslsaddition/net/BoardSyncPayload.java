@@ -26,7 +26,7 @@ public record BoardSyncPayload(String board, List<Entry> entries) implements Cus
     }
 
     public static final CustomPacketPayload.Type<BoardSyncPayload> TYPE =
-            CustomPacketPayload.createType("slsa:board_sync");
+            new CustomPacketPayload.Type<>(net.minecraft.resources.Identifier.fromNamespaceAndPath("slsa", "board_sync"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, BoardSyncPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, BoardSyncPayload::board,
