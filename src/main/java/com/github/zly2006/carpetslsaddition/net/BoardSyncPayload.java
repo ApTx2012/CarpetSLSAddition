@@ -41,7 +41,7 @@ public record BoardSyncPayload(String board, List<Entry> entries) implements Cus
 
     /** 在 onInitialize 里调用，注册 payload 类型。 */
     public static void register() {
-        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C().register(TYPE, CODEC);
+        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.clientboundPlay().register(TYPE, CODEC);
         ServerMain.LOGGER.info("[SLSA] registered BoardSyncPayload");
     }
 }
