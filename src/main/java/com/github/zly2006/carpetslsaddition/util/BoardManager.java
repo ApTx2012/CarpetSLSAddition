@@ -108,16 +108,7 @@ public final class BoardManager {
                 : server.getScoreboard().getObjective(objectiveName);
         ServerMain.LOGGER.info("[SLSA-BOARD] onClientRequest player={} name={} obj={}",
                 player.getScoreboardName(), objectiveName, obj);
-        // 给该玩家重发该 objective 的所有分数包（客户端可能没收到分数，导致空榜不显示）
-        if (obj != null && server.getScoreboard() instanceof net.minecraft.server.ServerScoreboard ssb) {
-            for (var pkt : ssb.getStartTrackingPackets(obj)) {
-                // 只发分数包，不发 objective 定义包（避免客户端重复创建崩溃）
-                if (pkt instanceof net.minecraft.network.protocol.game.ClientboundSetScorePacket) {
-                    player.connection.send(pkt);
-                }
-            }
-        }
-        // 再发 display 包（slot=SIDEBAR，objective 可为 null 表示清除）
+        // 直接给该玩家发 display 包（slot=SIDEBAR，objective 可为 null 表示清除）
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(
                 net.minecraft.world.scores.DisplaySlot.SIDEBAR, obj));
     }
