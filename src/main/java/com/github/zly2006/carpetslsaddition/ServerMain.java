@@ -54,7 +54,6 @@ public class ServerMain implements ModInitializer, CarpetExtension {
     public void onServerLoaded(MinecraftServer server) {
         ServerMain.server = server;
         com.github.zly2006.carpetslsaddition.util.BotListManager.load();
-        com.github.zly2006.carpetslsaddition.util.BoardManager.ensureObjectives(server);
         startBoardWatcher(server);
     }
 
