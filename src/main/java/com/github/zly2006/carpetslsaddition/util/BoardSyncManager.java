@@ -31,11 +31,14 @@ public final class BoardSyncManager {
     /** 排行榜最多显示条目数。 */
     public static final int TOP_N = 10;
 
-    /** 读取某玩家的挖掘总数（遍历所有方块的 BLOCK_MINED 累加）。 */
+    /** 读取某玩家的挖掘总数（遍历该玩家的 stats，累加 BLOCK_MINED 类型条目）。 */
     private static int totalMined(ServerStatsCounter counter) {
         int sum = 0;
-        for (Block block : BuiltInRegistries.BLOCK) {
-            sum += counter.getValue(Stats.BLOCK_MINED, block);
+        for (var entry : counter.stats.object2IntEntrySet()) {
+            Stat<?> stat = entry.getKey();
+            if (stat.getType() == Stats.BLOCK_MINED) {
+                sum += entry.getIntValue();
+            }
         }
         return sum;
     }
