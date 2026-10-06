@@ -89,11 +89,7 @@ public final class BoardManager {
         if (deaths == null && mined == null) {
             return;
         }
-        // 确保 objective 在追踪（分数才会同步给客户端）
-        if (sb instanceof net.minecraft.server.ServerScoreboard ssb) {
-            if (deaths != null) ssb.startTrackingObjective(deaths);
-            if (mined != null) ssb.startTrackingObjective(mined);
-        }
+
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             ServerStatsCounter counter = player.getStats();
             setScore(sb, deaths, player, totalDeaths(counter));
