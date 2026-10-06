@@ -5,10 +5,12 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -39,15 +41,15 @@ public class BoardClient implements ClientModInitializer {
         // 2) /slsboard 命令（纯客户端，非 OP 也能用）
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(
-                    net.minecraft.commands.Commands.literal("slsboard")
-                            .then(net.minecraft.commands.Commands.literal("deaths")
+                    ClientCommandManager.literal("slsboard")
+                            .then(ClientCommandManager.literal("deaths")
                                     .executes(c -> { BoardClientState.toggle("deaths"); feedback(c.getSource()); return 1; }))
-                            .then(net.minecraft.commands.Commands.literal("mined")
+                            .then(ClientCommandManager.literal("mined")
                                     .executes(c -> { BoardClientState.toggle("mined"); feedback(c.getSource()); return 1; }))
-                            .then(net.minecraft.commands.Commands.literal("off")
+                            .then(ClientCommandManager.literal("off")
                                     .executes(c -> { BoardClientState.set(""); feedback(c.getSource()); return 1; }))
-                            .then(net.minecraft.commands.Commands.argument("board", StringArgumentType.word())
-                                    .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                            .then(ClientCommandManager.argument("board", StringArgumentType.word())
+                                    .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                             new String[]{"deaths", "mined", "off"}, b))
                                     .executes(c -> {
                                         String v = StringArgumentType.getString(c, "board");
