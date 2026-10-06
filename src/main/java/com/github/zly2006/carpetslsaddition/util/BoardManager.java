@@ -47,6 +47,13 @@ public final class BoardManager {
                     Component.literal("挖掘榜"), ObjectiveCriteria.RenderType.INTEGER, true, null);
             ServerMain.LOGGER.info("[SLSA] created scoreboard objective {}", OBJ_MINED);
         }
+        // 让客户端能收到这两个 objective（load 进来的 objective 可能未被追踪）
+        if (sb instanceof net.minecraft.server.ServerScoreboard ssb) {
+            Objective d = sb.getObjective(OBJ_DEATHS);
+            if (d != null) ssb.startTrackingObjective(d);
+            Objective m = sb.getObjective(OBJ_MINED);
+            if (m != null) ssb.startTrackingObjective(m);
+        }
     }
 
     /** 读取某玩家的挖掘总数（遍历 stats map 中 BLOCK_MINED 类型条目）。 */
