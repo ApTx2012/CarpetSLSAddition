@@ -19,6 +19,9 @@
   "entrypoints": {
     "main": [
       "com.github.zly2006.carpetslsaddition.ServerMain"
+    ],
+    "client": [
+      "com.github.zly2006.carpetslsaddition.client.BoardClient"
     ]
   },
   "accessWidener": "slsa.accesswidener",
