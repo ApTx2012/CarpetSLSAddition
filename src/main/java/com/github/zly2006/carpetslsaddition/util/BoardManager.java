@@ -106,6 +106,8 @@ public final class BoardManager {
         Objective obj = objectiveName == null || objectiveName.isEmpty()
                 ? null
                 : server.getScoreboard().getObjective(objectiveName);
+        ServerMain.LOGGER.info("[SLSA-BOARD] onClientRequest player={} name={} obj={}",
+                player.getScoreboardName(), objectiveName, obj);
         // 直接给该玩家发 display 包（slot=SIDEBAR，objective 可为 null 表示清除）
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(
                 net.minecraft.world.scores.DisplaySlot.SIDEBAR, obj));
