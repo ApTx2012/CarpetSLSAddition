@@ -36,6 +36,7 @@ public class BoardClient implements ClientModInitializer {
             for (BoardSyncPayload.Entry e : payload.entries()) {
                 entries.add(new BoardClientState.Entry(e.name(), e.score()));
             }
+            com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-BOARD-C] recv board={} entries={}", payload.board(), entries.size());
             context.client().execute(() -> BoardClientState.setBoard(payload.board(), entries));
         });
 

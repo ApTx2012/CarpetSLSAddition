@@ -50,7 +50,6 @@ public final class BoardSyncManager {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             ServerStatsCounter counter = player.getStats();
             int score = BOARD_MINED.equals(board) ? totalMined(counter) : deaths(counter);
-            com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-BOARD] player={} board={} score={}", player.getScoreboardName(), board, score);
             if (score > 0) {
                 list.add(new BoardSyncPayload.Entry(player.getScoreboardName(), score));
             }
