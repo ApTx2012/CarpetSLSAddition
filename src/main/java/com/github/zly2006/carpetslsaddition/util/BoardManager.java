@@ -109,4 +109,4 @@ public final class BoardManager {
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(
                 net.minecraft.world.scores.DisplaySlot.SIDEBAR, obj));
     }
-}\n
+}
