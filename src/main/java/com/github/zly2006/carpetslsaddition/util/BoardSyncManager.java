@@ -85,13 +85,22 @@ public final class BoardSyncManager {
     }
 
     private static volatile Boolean lastEnabled = null;
+    private static long lastSyncTick = 0;
 
-    /** 由轮询线程每秒调用：规则值变化时同步给所有玩家。 */
+    /** 由轮询线程每秒调用：规则值变化时立即同步；否则每 5 秒定期同步一次数据。 */
     public static void tick(MinecraftServer server) {
         boolean now = com.github.zly2006.carpetslsaddition.SLSCarpetSettings.slsBoardEnabled;
         if (lastEnabled == null || lastEnabled != now) {
             lastEnabled = now;
             syncToAll(server);
+            return;
+        }
+        if (now) {
+            long tick = server.getTickCount();
+            if (tick - lastSyncTick >= 100) {  // 每 100 tick（5秒）同步一次数据
+                lastSyncTick = tick;
+                syncToAll(server);
+            }
         }
     }
 }

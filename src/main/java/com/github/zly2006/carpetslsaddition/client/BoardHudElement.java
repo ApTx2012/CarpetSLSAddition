@@ -28,7 +28,6 @@ public class BoardHudElement implements HudElement {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, DeltaTracker delta) {
         String board = BoardClientState.displaying;
-        com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-HUD] extractRenderState board={}", board);
         if (board == null || board.isEmpty()) {
             return;
         }
@@ -37,6 +36,9 @@ public class BoardHudElement implements HudElement {
             return;
         }
         List<BoardClientState.Entry> list = BoardClientState.current();
+        if (list.isEmpty()) {
+            return;
+        }
         Font font = mc.font;
 
         String title = BoardClientState.currentTitle();
