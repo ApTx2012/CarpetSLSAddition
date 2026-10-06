@@ -44,6 +44,10 @@ public class ServerMain implements ModInitializer, CarpetExtension {
         INSTANCE = this;
         CarpetServer.manageExtension(this);
         com.github.zly2006.carpetslsaddition.net.BoardSyncPayload.register();
+        // 玩家加入时同步榜单
+        net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register(
+                (handler, sender, srv) ->
+                        com.github.zly2006.carpetslsaddition.util.BoardSyncManager.syncTo(handler.getPlayer()));
     }
 
     @Override
