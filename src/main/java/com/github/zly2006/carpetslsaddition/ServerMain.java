@@ -43,6 +43,13 @@ public class ServerMain implements ModInitializer, CarpetExtension {
         LOGGER.info("[SLSA] onInitialize: managing Carpet extension");
         INSTANCE = this;
         CarpetServer.manageExtension(this);
+        com.github.zly2006.carpetslsaddition.net.BoardRequestPayload.register();
+        // 客户端请求显示榜单 → 给该玩家单独发 display 包
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver(
+                com.github.zly2006.carpetslsaddition.net.BoardRequestPayload.TYPE,
+                (payload, context) -> context.server().execute(() ->
+                        com.github.zly2006.carpetslsaddition.util.BoardManager.onClientRequest(
+                                context.player(), payload.objectiveName())));
     }
 
     @Override

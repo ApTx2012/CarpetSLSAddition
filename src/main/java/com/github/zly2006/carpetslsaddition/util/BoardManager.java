@@ -95,4 +95,18 @@ public final class BoardManager {
             setScore(sb, mined, player, totalMined(counter));
         }
     }
-}
+
+    /** 客户端请求显示某榜单 → 给该玩家单独发 display 包（不影响其他玩家）。 */
+    public static void onClientRequest(ServerPlayer player, String objectiveName) {
+        MinecraftServer server = ServerMain.server;
+        if (server == null) {
+            return;
+        }
+        Objective obj = objectiveName == null || objectiveName.isEmpty()
+                ? null
+                : server.getScoreboard().getObjective(objectiveName);
+        // 直接给该玩家发 display 包（slot=SIDEBAR，objective 可为 null 表示清除）
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(
+                net.minecraft.world.scores.DisplaySlot.SIDEBAR, obj));
+    }
+}\n
