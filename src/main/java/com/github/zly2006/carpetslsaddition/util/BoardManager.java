@@ -74,15 +74,9 @@ public final class BoardManager {
         access.set(value);
     }
 
-    private static boolean objectivesEnsured = false;
-
     /** 从 stats 同步所有在线玩家的分数到 scoreboard（定期调用）。 */
     public static void syncScores(MinecraftServer server) {
         Scoreboard sb = server.getScoreboard();
-        if (!objectivesEnsured) {
-            ensureObjectives(server);
-            objectivesEnsured = true;
-        }
         Objective deaths = sb.getObjective(OBJ_DEATHS);
         Objective mined = sb.getObjective(OBJ_MINED);
         if (deaths == null && mined == null) {

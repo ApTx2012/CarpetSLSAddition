@@ -57,6 +57,12 @@ public class ServerMain implements ModInitializer, CarpetExtension {
         startBoardWatcher(server);
     }
 
+    /** 服务器完全启动后创建 objective（此时 scoreboard 已 load 完，避免重名崩溃）。 */
+    static {
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register(server ->
+                com.github.zly2006.carpetslsaddition.util.BoardManager.ensureObjectives(server));
+    }
+
     /** 每秒检测 slsBoardEnabled 规则变化并同步给客户端。 */
     private void startBoardWatcher(MinecraftServer server) {
         Thread t = new Thread(() -> {
