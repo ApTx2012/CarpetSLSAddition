@@ -35,6 +35,8 @@ public final class BoardManager {
     /** 确保两个 objective 存在（服务器启动/重载时调用）。 */
     public static void ensureObjectives(MinecraftServer server) {
         Scoreboard sb = server.getScoreboard();
+        ServerMain.LOGGER.info("[SLSA] ensureObjectives called, deaths={} mined={}",
+                sb.getObjective(OBJ_DEATHS) != null, sb.getObjective(OBJ_MINED) != null);
         if (sb.getObjective(OBJ_DEATHS) == null) {
             sb.addObjective(OBJ_DEATHS, ObjectiveCriteria.DUMMY,
                     Component.literal("死亡榜"), ObjectiveCriteria.RenderType.INTEGER, true, null);
