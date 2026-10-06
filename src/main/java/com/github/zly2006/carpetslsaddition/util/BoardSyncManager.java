@@ -34,12 +34,14 @@ public final class BoardSyncManager {
     /** 读取某玩家的挖掘总数（遍历该玩家的 stats，累加 BLOCK_MINED 类型条目）。 */
     private static int totalMined(ServerStatsCounter counter) {
         int sum = 0;
-        for (var entry : counter.stats.object2IntEntrySet()) {
-            Stat<?> stat = entry.getKey();
+        int cnt = 0;
+        for (Stat<?> stat : counter.stats.keySet()) {
             if (stat.getType() == Stats.BLOCK_MINED) {
-                sum += entry.getIntValue();
+                cnt++;
+                sum += counter.getValue(stat);
             }
         }
+        com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-BOARD] totalMined: mapSize={} minedTypes={} sum={}", counter.stats.size(), cnt, sum);
         return sum;
     }
     /** 读取某玩家的死亡次数。 */
