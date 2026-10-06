@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -41,14 +41,14 @@ public class BoardClient implements ClientModInitializer {
         // 2) /slsboard 命令（纯客户端，非 OP 也能用）
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(
-                    ClientCommandManager.literal("slsboard")
-                            .then(ClientCommandManager.literal("deaths")
+                    ClientCommands.literal("slsboard")
+                            .then(ClientCommands.literal("deaths")
                                     .executes(c -> { BoardClientState.toggle("deaths"); feedback(c.getSource()); return 1; }))
-                            .then(ClientCommandManager.literal("mined")
+                            .then(ClientCommands.literal("mined")
                                     .executes(c -> { BoardClientState.toggle("mined"); feedback(c.getSource()); return 1; }))
-                            .then(ClientCommandManager.literal("off")
+                            .then(ClientCommands.literal("off")
                                     .executes(c -> { BoardClientState.set(""); feedback(c.getSource()); return 1; }))
-                            .then(ClientCommandManager.argument("board", StringArgumentType.word())
+                            .then(ClientCommands.argument("board", StringArgumentType.word())
                                     .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                             new String[]{"deaths", "mined", "off"}, b))
                                     .executes(c -> {
