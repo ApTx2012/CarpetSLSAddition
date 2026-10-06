@@ -28,6 +28,7 @@ public class BoardHudElement implements HudElement {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, DeltaTracker delta) {
         String board = BoardClientState.displaying;
+        com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.info("[SLSA-HUD] extractRenderState board={}", board);
         if (board == null || board.isEmpty()) {
             return;
         }
@@ -45,11 +46,11 @@ public class BoardHudElement implements HudElement {
         }
 
         int screenW = g.guiWidth();
+        int screenH = g.guiHeight();
         int x = screenW - maxW - PAD * 2 - 2;
-        int y = 4;
-
-        // 背景
+        // 背景（右侧垂直居中）
         int h = PAD * 2 + LINE_H * (list.size() + 1);
+        int y = screenH / 2 - h / 2;
         g.fill(x, y, x + maxW + PAD * 2, y + h, BG);
 
         int ty = y + PAD;
