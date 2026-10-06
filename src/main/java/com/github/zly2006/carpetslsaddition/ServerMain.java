@@ -43,6 +43,7 @@ public class ServerMain implements ModInitializer, CarpetExtension {
         LOGGER.info("[SLSA] onInitialize: managing Carpet extension");
         INSTANCE = this;
         CarpetServer.manageExtension(this);
+        com.github.zly2006.carpetslsaddition.net.BoardSyncPayload.register();
     }
 
     @Override
@@ -53,6 +54,8 @@ public class ServerMain implements ModInitializer, CarpetExtension {
     @Override
     public void onServerLoaded(MinecraftServer server) {
         ServerMain.server = server;
+        com.github.zly2006.carpetslsaddition.util.BotListManager.load();
+        com.github.zly2006.carpetslsaddition.util.BoardSyncManager.syncToAll(server);
     }
 
     @Override
