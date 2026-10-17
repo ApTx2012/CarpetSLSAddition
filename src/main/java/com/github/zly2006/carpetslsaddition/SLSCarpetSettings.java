@@ -83,4 +83,7 @@ public class SLSCarpetSettings {
 
     @Rule(categories = {SLSA, RuleCategory.FEATURE})
     public static boolean slsBoardEnabled = false;
+
+    @Rule(categories = {SLSA, RuleCategory.FEATURE})
+    public static boolean noBrittleIceFromFlowingWater = false;
 }

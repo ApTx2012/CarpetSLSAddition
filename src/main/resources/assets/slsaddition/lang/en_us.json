@@ -76,5 +76,7 @@
   "carpet.rule.stackableVehicles.name": "Stackable vehicles",
   "carpet.rule.stackableVehicles.desc": "Minecarts and boats can stack up to 64, auto-merging on pickup",
   "carpet.rule.slsBoardEnabled.name": "Enable boards",
-  "carpet.rule.slsBoardEnabled.desc": "Allow players to use /slsboard to show death/mining leaderboards"
+  "carpet.rule.slsBoardEnabled.desc": "Allow players to use /slsboard to show death/mining leaderboards",
+  "carpet.rule.noBrittleIceFromFlowingWater.name": "No brittle ice from flowing water",
+  "carpet.rule.noBrittleIceFromFlowingWater.desc": "Only water flowing straight down onto blue ice forms brittle ice. Horizontally flowing water will not."
 }

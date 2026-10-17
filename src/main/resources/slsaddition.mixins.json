@@ -12,6 +12,7 @@
     "block.MixinDecoratedPotBlock",
     "block.MixinTrialSpawnerData",
     "block.MixinTrialSpawnerState",
+    "block.MixinFlowingWaterBrittleIce",
     "item.SlotMixin",
     "carpet.MixinEntityPlayerMPFake",
     "carpet.MixinPlayerCommand",
