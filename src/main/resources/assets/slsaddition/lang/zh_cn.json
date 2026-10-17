@@ -78,5 +78,10 @@
   "carpet.rule.slsBoardEnabled.name": "启用榜单",
   "carpet.rule.slsBoardEnabled.desc": "允许玩家用 /slsboard 显示死亡榜/挖掘榜",
   "carpet.rule.noBrittleIceFromFlowingWater.name": "横向流动水不产生碎冰",
-  "carpet.rule.noBrittleIceFromFlowingWater.desc": "只有竖直向下的水流接触蓝冰时才会产生碎冰，横向流动的水不再转化"
+  "carpet.rule.noBrittleIceFromFlowingWater.desc": "只有竖直向下的水流接触蓝冰时才会产生碎冰，横向流动的水不再转化",
+  "carpet.rule.elytraCraftable.name": "鞘翅可合成",
+  "carpet.rule.armadilloImmediateDespawns.name": "犰狳立即消失",
+  "carpet.rule.offlineFakePlayers.name": "假人强制离线UUID",
+  "carpet.rule.netherPortalSize.name": "地狱门最大尺寸",
+  "carpet.rule.trialSpawnerCD.name": "试炼刷怪笼冷却"
 }

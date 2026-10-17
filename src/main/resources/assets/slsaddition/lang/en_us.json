@@ -48,7 +48,7 @@
   "carpet.rule.elytraCraftable.desc": "Make elytra craftable for Minecraft 1.20.6+ (eltra wont disappear when crafting)",
   "carpet.rule.botMaxOnlineTime.desc": "Set the maximum living time of the bot which create by carpet sls addition.",
   "carpet.rule.spectatorCannotUseLeash.desc": "If a player is a spectator, they cannot use the leash.",
-  "carpet.rule.offlineFakePlayers.desc": "假人强制离线uuid",
+  "carpet.rule.offlineFakePlayers.desc": "Force fake players to use offline UUIDs",
   "carpet.rule.armadilloImmediateDespawns.desc": "Armadillos will despawn immediately if they are 128 blocks away from the player.",
   "carpet.rule.turtleLocalNesting.name": "Turtle Local Nesting",
   "carpet.rule.turtleLocalNesting.desc": "Turtles carrying eggs will lay them on reachable sand near the closest local water source instead of returning to their birthplace.",
@@ -78,5 +78,10 @@
   "carpet.rule.slsBoardEnabled.name": "Enable boards",
   "carpet.rule.slsBoardEnabled.desc": "Allow players to use /slsboard to show death/mining leaderboards",
   "carpet.rule.noBrittleIceFromFlowingWater.name": "No brittle ice from flowing water",
-  "carpet.rule.noBrittleIceFromFlowingWater.desc": "Only water flowing straight down onto blue ice forms brittle ice. Horizontally flowing water will not."
+  "carpet.rule.noBrittleIceFromFlowingWater.desc": "Only water flowing straight down onto blue ice forms brittle ice. Horizontally flowing water will not.",
+  "carpet.rule.elytraCraftable.name": "Craftable elytra",
+  "carpet.rule.armadilloImmediateDespawns.name": "Armadillos despawn immediately",
+  "carpet.rule.offlineFakePlayers.name": "Force offline UUID for fake players",
+  "carpet.rule.netherPortalSize.name": "Max nether portal size",
+  "carpet.rule.trialSpawnerCD.name": "Trial spawner cooldown"
 }
