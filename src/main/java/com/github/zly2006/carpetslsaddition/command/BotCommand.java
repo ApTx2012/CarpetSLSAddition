@@ -41,6 +41,7 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ClientDebugInfo;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -386,7 +387,7 @@ public class BotCommand {
             EntityPlayerMPFake bot = constructor.newInstance(server, worldIn, gameprofile, ClientInformation.createDefault(), false);
 
             bot.fixStartingPosition = () -> bot.snapTo(pos.x, pos.y, pos.z, (float) yaw, (float) pitch);
-            server.getPlayerList().placeNewPlayer(new FakeClientConnection(PacketFlow.SERVERBOUND), bot, new CommonListenerCookie(gameprofile, 0, bot.clientInformation(), false));
+            server.getPlayerList().placeNewPlayer(new FakeClientConnection(PacketFlow.SERVERBOUND), bot, new CommonListenerCookie(gameprofile, 0, bot.clientInformation(), false, new ClientDebugInfo()));
 
             bot.teleportTo(worldIn, pos.x, pos.y, pos.z, Set.of(), (float) yaw, (float) pitch, true);
             bot.setHealth(20.0F);

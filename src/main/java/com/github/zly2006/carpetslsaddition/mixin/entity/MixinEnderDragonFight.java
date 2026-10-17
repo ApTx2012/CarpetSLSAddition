@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
+import net.minecraft.world.level.dimension.end.EnderDragonFight;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,6 +36,9 @@ public class MixinEnderDragonFight {
 
     @Shadow
     private BlockPos exitPortalLocation;
+
+    @Shadow
+    private BlockPos origin;
 
     @Unique
     private int defaultChunkX = -8;
@@ -79,13 +82,13 @@ public class MixinEnderDragonFight {
             if (SLSCarpetSettings.optimizedOnDragonRespawn && defaultOriginY != -1) {
                 i = defaultOriginY;
             } else {
-                i = this.level.getHeight(Heightmap.Types.MOTION_BLOCKING, EndPodiumFeature.getLocation(BlockPos.ZERO).getX(), EndPodiumFeature.getLocation(BlockPos.ZERO).getZ());
+                i = this.level.getHeight(Heightmap.Types.MOTION_BLOCKING, EnderDragonFight.getPodiumLocation(this.origin).getX(), EnderDragonFight.getPodiumLocation(this.origin).getZ());
             }
             boolean notFirstSearch = false;
             for (j = i; j >= 0; --j) {
                 BlockPattern.BlockPatternMatch result2;
-                BlockPos origin = EndPodiumFeature.getLocation(BlockPos.ZERO);
-                BlockPos searchPos = new BlockPos(origin.getX(), j, origin.getZ());
+                BlockPos podiumPos = EnderDragonFight.getPodiumLocation(this.origin);
+                BlockPos searchPos = new BlockPos(podiumPos.getX(), j, podiumPos.getZ());
                 if (SLSCarpetSettings.optimizedOnDragonRespawn && notFirstSearch) {
                     result2 = partialSearchAround(this.exitPortalPattern, this.level, searchPos);
                 } else {

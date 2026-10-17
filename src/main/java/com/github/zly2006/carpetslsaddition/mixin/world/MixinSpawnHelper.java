@@ -3,6 +3,7 @@ package com.github.zly2006.carpetslsaddition.mixin.world;
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.NaturalSpawner;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +17,7 @@ public class MixinSpawnHelper {
     // 改为在 getMobForSpawn 返回处拦截。
     @Inject(method = "getMobForSpawn", at = @At("HEAD"), cancellable = true)
     private static void onCreateMob(ServerLevel level, EntityType<?> type, CallbackInfoReturnable<Mob> cir) {
-        if (SLSCarpetSettings.noBatSpawning && type == EntityType.BAT) {
+        if (SLSCarpetSettings.noBatSpawning && type == EntityTypes.BAT) {
             cir.setReturnValue(null);
         }
     }

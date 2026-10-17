@@ -23,7 +23,7 @@ public class ShulkerBoxItemUtil {
         if (itemStack.getItem() instanceof BlockItem blockItem
                 && blockItem.getBlock() instanceof ShulkerBoxBlock) {
             return itemStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
-                    .allItemsCopyStream().findAny().isEmpty();
+                    .nonEmptyItemCopyStream().findAny().isEmpty();
         }
         return false;
     }
