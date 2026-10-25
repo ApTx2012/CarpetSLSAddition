@@ -4,7 +4,6 @@ import carpet.fakes.ServerPlayerInterface;
 import carpet.helpers.EntityPlayerActionPack;
 import carpet.patches.EntityPlayerMPFake;
 import com.github.zly2006.carpetslsaddition.SLSCarpetSettings;
-import com.github.zly2006.carpetslsaddition.util.access.SLSBotAccessor;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -28,7 +27,7 @@ import static net.minecraft.commands.Commands.literal;
  * /botall —— 批量控制本模组生成的所有假人。
  *
  * <p>与 {@link BotCommand} 的区别：{@code /bot <player>} 操作单个指定玩家，
- * 而 {@code /botall} 对其余命令中出现的所有本模组假人（isBot()==true）批量执行同一操作。
+ * 而 {@code /botall} 对所有假人（含 Carpet /player、MCDR !!ae 生成的）批量执行同一操作。
  */
 public class BotAllCommand {
 
@@ -118,13 +117,18 @@ public class BotAllCommand {
         return c -> batchAp(c, action);
     }
 
-    /** 收集所有本模组生成的假人（受名单限制：名单非空时只取名单内的）。 */
+    /**
+     * 收集所有受控假人（受名单限制：名单非空时只取名单内的）。
+     *
+     * <p>不区分来源：包括本模组 /bot 生成的假人，也包括 Carpet 原版 /player
+     * （及 MCDR !!ae 等包装脚本）生成的假人 —— 只要 {@link EntityPlayerMPFake} 就算。
+     */
     private static List<ServerPlayer> collectBots(CommandSourceStack source) {
         MinecraftServer server = source.getServer();
         List<ServerPlayer> bots = new ArrayList<>();
         boolean filterByList = !com.github.zly2006.carpetslsaddition.util.BotListManager.isEmpty();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            if (player instanceof EntityPlayerMPFake && ((SLSBotAccessor) player).carpet_SLS_Addition$isBot()) {
+            if (player instanceof EntityPlayerMPFake) {
                 if (filterByList && !com.github.zly2006.carpetslsaddition.util.BotListManager.contains(player.getScoreboardName())) {
                     continue;
                 }
@@ -181,6 +185,10 @@ public class BotAllCommand {
         for (String name : names) {
             // 已在线的跳过
             if (source.getServer().getPlayerList().getPlayerByName(name) != null) continue;
+            if (name.length() > 16) {
+                com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.warn("[SLSA] skip list bot {}: name too long", name);
+                continue;
+            }
             try {
                 var bot = BotCommand.createBot(name, source.getServer(), pos, rot.y, rot.x, dim);
                 if (bot != null) ok++;
@@ -205,6 +213,10 @@ public class BotAllCommand {
         int ok = 0;
         for (int i = 1; i <= count; i++) {
             String name = prefix + i;
+            if (name.length() > 16) {
+                com.github.zly2006.carpetslsaddition.ServerMain.LOGGER.warn("[SLSA] skip bot {}: name too long", name);
+                continue;
+            }
             try {
                 var bot = BotCommand.createBot(name, source.getServer(), pos, rot.y, rot.x, dim);
                 if (bot != null) ok++;
