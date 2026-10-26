@@ -22,8 +22,21 @@ public class ShulkerBoxItemUtil {
     public static boolean isEmptyShulkerBoxItem(ItemStack itemStack) {
         if (itemStack.getItem() instanceof BlockItem blockItem
                 && blockItem.getBlock() instanceof ShulkerBoxBlock) {
-            return itemStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
-                    .allItemsCopyStream().findAny().isEmpty();
+            ItemContainerContents container = itemStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+            try {
+                // newer MC API
+                return container.allItemsCopyStream().findAny().isEmpty();
+            } catch (NoSuchMethodError e) {
+                // fallback for older MC versions
+                try {
+                    java.lang.reflect.Method streamMethod = container.getClass().getMethod("stream");
+                    @SuppressWarnings("unchecked")
+                    java.util.stream.Stream<ItemStack> stream = (java.util.stream.Stream<ItemStack>) streamMethod.invoke(container);
+                    return !stream.findAny().isPresent();
+                } catch (Throwable t) {
+                    return false;
+                }
+            }
         }
         return false;
     }
