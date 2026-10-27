@@ -23,20 +23,20 @@ public class ShulkerBoxItemUtil {
         if (itemStack.getItem() instanceof BlockItem blockItem
                 && blockItem.getBlock() instanceof ShulkerBoxBlock) {
             ItemContainerContents container = itemStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+            java.util.stream.Stream<ItemStack> stream;
             try {
-                // newer MC API
-                return container.allItemsCopyStream().findAny().isEmpty();
+                stream = container.allItemsCopyStream();
             } catch (NoSuchMethodError e) {
-                // fallback for older MC versions
                 try {
-                    java.lang.reflect.Method streamMethod = container.getClass().getMethod("stream");
+                    java.lang.reflect.Method m = container.getClass().getMethod("itemCopies");
                     @SuppressWarnings("unchecked")
-                    java.util.stream.Stream<ItemStack> stream = (java.util.stream.Stream<ItemStack>) streamMethod.invoke(container);
-                    return !stream.findAny().isPresent();
+                    java.util.stream.Stream<ItemStack> s = (java.util.stream.Stream<ItemStack>) m.invoke(container);
+                    stream = s;
                 } catch (Throwable t) {
                     return false;
                 }
             }
+            return stream.findAny().isEmpty();
         }
         return false;
     }
