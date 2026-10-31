@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.github.zly2006.carpetslsaddition.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": [
+  "client": ["score.MixinPlayerScoreEntry",
   ],
   "mixins": [
     "block.BlockPatternTestTransformInvoker",
