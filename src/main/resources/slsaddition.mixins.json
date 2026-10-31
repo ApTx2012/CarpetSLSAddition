@@ -38,7 +38,8 @@
     "turtle.PathNavigationAccessor",
     "turtle.TurtleAccessor",
     "turtle.TurtleGoHomeGoalMixin",
-    "turtle.TurtleLayEggGoalMixin"
+    "turtle.TurtleLayEggGoalMixin",
+    "board.MixinServerGamePacketListenerImpl"
   ],
   "injectors": {
     "defaultRequire": 1

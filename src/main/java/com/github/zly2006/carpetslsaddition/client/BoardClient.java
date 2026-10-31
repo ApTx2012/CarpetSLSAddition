@@ -28,10 +28,12 @@ public class BoardClient implements ClientModInitializer {
                     ClientCommands.literal("slsboard")
                             .then(ClientCommands.literal("deaths").executes(c -> request(c.getSource(), "sls_deaths")))
                             .then(ClientCommands.literal("mined").executes(c -> request(c.getSource(), "sls_mined")))
+                            .then(ClientCommands.literal("placed").executes(c -> request(c.getSource(), "sls_placed")))
+                            .then(ClientCommands.literal("playtime").executes(c -> request(c.getSource(), "sls_play_time")))
                             .then(ClientCommands.literal("off").executes(c -> request(c.getSource(), "")))
                             .then(ClientCommands.argument("board", StringArgumentType.word())
                                     .suggests((c, b) -> SharedSuggestionProvider.suggest(
-                                            new String[]{"deaths", "mined", "off"}, b))
+                                            new String[]{"deaths", "mined", "placed", "playtime", "off"}, b))
                                     .executes(c -> {
                                         String v = StringArgumentType.getString(c, "board");
                                         return request(c.getSource(), "off".equals(v) ? "" : "sls_" + v);
