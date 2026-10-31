@@ -65,10 +65,8 @@ public final class BoardManager {
             ServerMain.LOGGER.info("[SLSA] created scoreboard objective {}", OBJ_PLACED);
         }
         if (sb.getObjective(OBJ_PLAY_TIME) == null) {
-            Objective obj = sb.addObjective(OBJ_PLAY_TIME, ObjectiveCriteria.DUMMY,
+            sb.addObjective(OBJ_PLAY_TIME, ObjectiveCriteria.DUMMY,
                     Component.literal("在线时长"), ObjectiveCriteria.RenderType.INTEGER, true, null);
-            // 设置自定义 NumberFormat 用于客户端显示格式化
-            obj.setNumberFormat(new PlayTimeNumberFormat());
             ServerMain.LOGGER.info("[SLSA] created scoreboard objective {}", OBJ_PLAY_TIME);
         }
         // 让客户端能收到这四个 objective（load 进来的 objective 可能未被追踪）
@@ -100,21 +98,41 @@ public final class BoardManager {
         return counter.getValue(Stats.CUSTOM, Stats.DEATHS);
     }
 
-    /** 获取玩家的放置计数。 */
+    /** 获取玩家的放置计数（优先内存，其次 scoreboard 持久化值）。 */
     public static int getPlacedCount(ServerPlayer player) {
-        return placedCounts.getOrDefault(player.getUUID().toString(), 0);
+        String uuid = player.getUUID().toString();
+        Integer cached = placedCounts.get(uuid);
+        if (cached != null) {
+            return cached;
+        }
+        // 从 scoreboard 读取持久化值（服务器重启后内存为空）
+        Scoreboard sb = player.level().getServer().getScoreboard();
+        Objective placed = sb.getObjective(OBJ_PLACED);
+        if (placed == null) {
+            return 0;
+        }
+        try {
+            int v = sb.getOrCreatePlayerScore((ScoreHolder) player, placed).get();
+            placedCounts.put(uuid, v);
+            return v;
+        } catch (Throwable ignored) {
+            return 0;
+        }
     }
 
     /** 增加玩家的放置计数（放置方块时调用）。 */
     public static void incrementPlaced(ServerPlayer player) {
         String uuid = player.getUUID().toString();
-        placedCounts.merge(uuid, 1, Integer::sum);
+        // 保证从持久化 scoreboard 读取基准值
+        int base = getPlacedCount(player);
+        int next = base + 1;
+        placedCounts.put(uuid, next);
         // 实时同步到 scoreboard
         Scoreboard sb = player.level().getServer().getScoreboard();
         Objective placed = sb.getObjective(OBJ_PLACED);
         if (placed != null) {
             ScoreAccess access = sb.getOrCreatePlayerScore((ScoreHolder) player, placed);
-            access.set(placedCounts.get(uuid));
+            access.set(next);
         }
     }
 
@@ -147,10 +165,21 @@ public final class BoardManager {
             ServerStatsCounter counter = player.getStats();
             setScore(sb, deaths, player, totalDeaths(counter));
             setScore(sb, mined, player, totalMined(counter));
-            // 放置榜已实时同步，这里只需确保在线玩家有分数条目
+            // 放置榜：优先使用内存计数，缺失时从 scoreboard 持久化值恢复
             if (placed != null) {
                 String uuid = player.getUUID().toString();
-                int count = placedCounts.getOrDefault(uuid, 0);
+                Integer cached = placedCounts.get(uuid);
+                int count;
+                if (cached != null) {
+                    count = cached;
+                } else {
+                    try {
+                        count = sb.getOrCreatePlayerScore((ScoreHolder) player, placed).get();
+                    } catch (Throwable ignored) {
+                        count = 0;
+                    }
+                    placedCounts.put(uuid, count);
+                }
                 ScoreAccess access = sb.getOrCreatePlayerScore((ScoreHolder) player, placed);
                 access.set(count);
             }
