@@ -8,6 +8,7 @@ import net.minecraft.network.chat.numbers.NumberFormatType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.ServerStatsCounter;
+import carpet.patches.EntityPlayerMPFake;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.scores.Objective;
@@ -122,6 +123,10 @@ public final class BoardManager {
 
     /** 增加玩家的放置计数（放置方块时调用）。 */
     public static void incrementPlaced(ServerPlayer player) {
+        // 假人不计入放置榜
+        if (player instanceof EntityPlayerMPFake) {
+            return;
+        }
         String uuid = player.getUUID().toString();
         // 保证从持久化 scoreboard 读取基准值
         int base = getPlacedCount(player);
@@ -162,6 +167,10 @@ public final class BoardManager {
         }
 
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            // 跳过假人（Carpet /player、MCDR !!ae 等生成的假人不计入榜单）
+            if (player instanceof EntityPlayerMPFake) {
+                continue;
+            }
             ServerStatsCounter counter = player.getStats();
             setScore(sb, deaths, player, totalDeaths(counter));
             setScore(sb, mined, player, totalMined(counter));
